@@ -1,0 +1,2 @@
+class cloudIndexError(Exception):
+    pass

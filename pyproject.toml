@@ -1,0 +1,78 @@
+[project]
+name = "cloud-unmanaged"
+version = "0.1.0"
+description = "Tool to identify cloud resources not managed by IaC"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+]
+requires-python = ">=3.14"
+dependencies = [
+    "boto3>=1.43.39",
+    "rich>=15.0.0",
+    "typer>=0.26.8",
+    "types-boto3-lite[resource-explorer-2]>=1.43.39",
+]
+
+[project.scripts]
+cloud-unmanaged = "cloud_unmanaged.main:app"
+
+[build-system]
+build-backend = "uv_build"
+requires = ["uv_build>=0.11.26,<0.12"]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.14.3",
+    "mypy>=2.1.0",
+    "pyright>=1.1.411",
+    "pytest>=9.1.1",
+    "ruff>=0.15.20",
+    "ty>=0.0.56",
+    "vulture>=2.16",
+    "yamllint>=1.38.0",
+]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+skip_empty = true
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.mypy]
+files = ["src", "tests"]
+strict = true
+
+[tool.pyright]
+typeCheckingMode = "strict"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+    "S101", # assert
+]
+select = [
+    "B",   # bugbear
+    "B9",
+    "C4",  # flake8-comprehensions
+    "E",   # pycodestyle (error)
+    "F",   # pyflakes
+    "I",   # isort
+    "PGH", # pygrep-hooks
+    "PIE", # flake8-pie
+    "PYI", # flake8-pyi
+    "RUF",
+    "S",   # flake8-bandit
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade
+]
+
+[tool.vulture]
+paths = ["src", "tests"]
