@@ -5,7 +5,7 @@ from typer import Exit, Option
 
 from cloud_index.aws import get_available_regions
 from cloud_index.aws import index as index_aws
-from cloud_index.error import cloudIndexError
+from cloud_index.error import CloudIndexError
 from cloud_unmanaged.app import app
 
 console = Console()
@@ -41,7 +41,7 @@ def index(
                 str(resource.type),
                 resource.identifier,
             )
-    except cloudIndexError as error:
+    except CloudIndexError as error:
         err_console.print(str(error), style="red", markup=False)
         raise Exit(1) from error
 
