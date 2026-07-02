@@ -1,4 +1,4 @@
-.PHONY: check clean install upgrade
+.PHONY: check clean format install upgrade
 
 check:
 	uv run yamllint .
@@ -14,6 +14,10 @@ check:
 clean:
 	rm -rf .coverage .mypy_cache .pytest_cache .ruff_cache
 	find . -type d -name __pycache__ -exec rm -rf {} +
+
+format:
+	uv run ruff check --fix
+	uv run ruff format
 
 install:
 	uv sync --locked
