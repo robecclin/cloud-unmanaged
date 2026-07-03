@@ -13,11 +13,9 @@
 ## Module layout
 
 - `cloud_index` - Package for indexing cloud resources
-- `cloud_index.aws` - Exported interface for indexing AWS resources
+- `cloud_index.aws` - AWS resource indexer using AWS Resource Explorer
 - `cloud_index.error` - Base error class (`CloudIndexError`) for all errors exposed to callers
 - `cloud_index.resource` - Data class for representing resources (`Resource` and `ResourceType`)
-- `cloud_index.internal` - Implementation of cloud indexers (private)
-- `cloud_index.internal.aws` - Implementation of AWS resource indexer using AWS Resource Explorer
 - `cloud_unmanaged` - Package for CLI app
 - `cloud_unmanaged.app` - Typer app object
 - `cloud_unmanaged.main` - Entrypoint and command registration
@@ -29,7 +27,7 @@
 ## Testing
 
 - Complete branch test coverage is enforced
-- Tests are grouped by top-level package and flattened into `tests/<package>/`
+- Tests mirror the package module structure under `tests/`
 - Required test types:
   - Library tests covering exported interfaces
   - Command tests with mocked library interfaces
@@ -49,3 +47,4 @@
 - Target Python 3.14 and dependency versions resolved by `uv.lock`; backwards compatibility is not required
 - Use strict type annotations; assertions are appropriate for internal invariants and type narrowing
 - Do not use assertions for user input, expected AWS failures or other recoverable runtime conditions
+- Do not prefix private modules, functions or variables with `_`, except in nested closures

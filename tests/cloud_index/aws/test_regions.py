@@ -1,4 +1,4 @@
-from cloud_index.internal.aws.regions import get_available_regions, resolve_region
+from cloud_index.aws.regions import get_available_regions, resolve_region
 
 
 def test_get_available_regions() -> None:

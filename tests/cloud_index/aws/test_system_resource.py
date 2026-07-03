@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from boto3 import Session
 
-from cloud_index.internal.aws.system_resource import is_system_resource
+from cloud_index.aws.system_resource import is_system_resource
 from cloud_index.resource import ResourceType
 
 
@@ -73,8 +73,6 @@ def test_is_system_resource(
 def test_is_system_resource_kms_key(offline_session: Session, key_manager: str, expected: bool) -> None:
     resource_type = ResourceType("aws", "kms", "key")
     key_id = "72068baa-d0af-4942-abb9-bb08ad502707"
-    with patch(
-        "cloud_index.internal.aws.system_resource.get_kms_key_manager", return_value=key_manager
-    ) as get_key_manager:
+    with patch("cloud_index.aws.system_resource.get_kms_key_manager", return_value=key_manager) as get_key_manager:
         assert is_system_resource(offline_session, resource_type, "us-east-1", key_id) is expected
     get_key_manager.assert_called_once_with(offline_session, "us-east-1", key_id)
