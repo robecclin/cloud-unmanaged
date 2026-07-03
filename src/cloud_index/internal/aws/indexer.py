@@ -15,10 +15,11 @@ def index(session: Session) -> Generator[Resource]:
     for resource in get_resources(session):
         arn = parse_arn(resource.arn)
         resource_type = parse_resource_type(resource.type)
+        region = resolve_region(resource.region)
         yield Resource(
             account=resource.account_id,
-            region=resolve_region(resource.region),
+            region=region,
             type=resource_type,
             identifier=arn.resource_id,
-            system=is_system_resource(resource_type, arn.resource_id),
+            system=is_system_resource(session, resource_type, region, arn.resource_id),
         )

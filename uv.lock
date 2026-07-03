@@ -104,7 +104,7 @@ dependencies = [
     { name = "boto3" },
     { name = "rich" },
     { name = "typer" },
-    { name = "types-boto3-lite", extra = ["resource-explorer-2"] },
+    { name = "types-boto3-lite", extra = ["kms", "resource-explorer-2"] },
 ]
 
 [package.dev-dependencies]
@@ -124,7 +124,7 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.43.40" },
     { name = "rich", specifier = ">=15.0.0" },
     { name = "typer", specifier = ">=0.26.8" },
-    { name = "types-boto3-lite", extras = ["resource-explorer-2"], specifier = ">=1.43.40" },
+    { name = "types-boto3-lite", extras = ["kms", "resource-explorer-2"], specifier = ">=1.43.40" },
 ]
 
 [package.metadata.requires-dev]
@@ -530,6 +530,15 @@ wheels = [
 ]
 
 [[package]]
+name = "types-boto3-kms"
+version = "1.43.12"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/46/7343b52e16eaa9dec7099cdd6a901317df583473b1658d04cb42885c8d03/types_boto3_kms-1.43.12.tar.gz", hash = "sha256:f9a06ca5a1cbf02f820208f1e84983a750daa1bce305bd11231961a9d770d9cd", size = 30696, upload-time = "2026-05-20T20:01:12.294Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/37/e1/08af811394ca720a077a4a9fda7cce33c043819e56e0d722d21c977de444/types_boto3_kms-1.43.12-py3-none-any.whl", hash = "sha256:e3c2d0e510593920464aff052382fc31d7159c15cb2c439c5ad8988f6c8417e2", size = 38951, upload-time = "2026-05-20T20:01:08.731Z" },
+]
+
+[[package]]
 name = "types-boto3-lite"
 version = "1.43.40"
 source = { registry = "https://pypi.org/simple" }
@@ -543,6 +552,9 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+kms = [
+    { name = "types-boto3-kms" },
+]
 resource-explorer-2 = [
     { name = "types-boto3-resource-explorer-2" },
 ]
@@ -567,11 +579,11 @@ wheels = [
 
 [[package]]
 name = "typing-extensions"
-version = "4.15.0"
+version = "4.16.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/72/94/1a15dd82efb362ac84269196e94cf00f187f7ed21c242792a923cdb1c61f/typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466", size = 109391, upload-time = "2025-08-25T13:49:26.313Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/cc/6253133b5bb138fc3306cebfbda2c520f545d36b5be2c7255cc528bb45d6/typing_extensions-4.16.0.tar.gz", hash = "sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5", size = 113555, upload-time = "2026-07-02T08:40:05.92Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548", size = 44614, upload-time = "2025-08-25T13:49:24.86Z" },
+    { url = "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl", hash = "sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8", size = 45571, upload-time = "2026-07-02T08:40:04.659Z" },
 ]
 
 [[package]]

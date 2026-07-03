@@ -1,8 +1,11 @@
 from collections.abc import Generator
 from dataclasses import dataclass
+from functools import cache
 
 from boto3 import Session
 from botocore.exceptions import BotoCoreError, ClientError
+from types_boto3_kms import KMSClient
+from types_boto3_kms.literals import KeyManagerTypeType
 from types_boto3_resource_explorer_2 import ResourceExplorerClient
 
 from .error import AwsAccessError, NoAggregatorIndexFoundError
@@ -21,6 +24,22 @@ class AwsResource:
 def get_resource_explorer_client(session: Session, region: str) -> ResourceExplorerClient:
     client: ResourceExplorerClient = session.client("resource-explorer-2", region_name=region)
     return client
+
+
+@cache
+def get_kms_client(session: Session, region: str) -> KMSClient:
+    client: KMSClient = session.client("kms", region_name=region)
+    return client
+
+
+def get_kms_key_manager(session: Session, region: str, key_id: str) -> KeyManagerTypeType:
+    client = get_kms_client(session, region)
+    try:
+        metadata = client.describe_key(KeyId=key_id)["KeyMetadata"]
+    except (BotoCoreError, ClientError) as error:
+        raise AwsAccessError(f"Could not describe KMS key {key_id}: {error}") from error
+    assert "KeyManager" in metadata
+    return metadata["KeyManager"]
 
 
 def get_aggregator_region(session: Session) -> str:

@@ -13,7 +13,7 @@ dependencies = [
     "boto3>=1.43.40",
     "rich>=15.0.0",
     "typer>=0.26.8",
-    "types-boto3-lite[resource-explorer-2]>=1.43.40",
+    "types-boto3-lite[kms,resource-explorer-2]>=1.43.40",
 ]
 
 [project.scripts]
