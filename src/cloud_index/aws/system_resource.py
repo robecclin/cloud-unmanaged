@@ -32,14 +32,8 @@ def is_system_resource(session: Session, resource_type: ResourceType, region: st
                     return False
         case "events" if resource_type.kind == "event-bus":
             return resource_id == "default"
-        case "iam":
-            match resource_type.kind:
-                case "policy":
-                    return resource_id.startswith("service-role/")
-                case "role":
-                    return resource_id.startswith("aws-service-role/")
-                case _:
-                    return False
+        case "iam" if resource_type.kind == "role":
+            return resource_id.startswith("aws-service-role/")
         case "glue" if resource_type.kind == "database":
             return resource_id == "default"
         case "kms":
