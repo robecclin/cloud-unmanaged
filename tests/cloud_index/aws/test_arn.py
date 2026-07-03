@@ -1,6 +1,6 @@
 import pytest
 
-from cloud_index.internal.aws.arn import parse_arn
+from cloud_index.aws.arn import parse_arn
 
 
 @pytest.mark.parametrize(

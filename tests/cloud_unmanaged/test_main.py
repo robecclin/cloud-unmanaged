@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from tests.conftest import RunCli
+from tests.cloud_unmanaged.conftest import RunCli
 
 
 def test_main_dispatches_subcommand(run_cli: RunCli) -> None:

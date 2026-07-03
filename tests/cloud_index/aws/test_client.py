@@ -2,9 +2,9 @@ import pytest
 from boto3 import Session
 from botocore.stub import Stubber
 
-from cloud_index.internal.aws.client import get_kms_key_manager
-from cloud_index.internal.aws.error import AwsAccessError
-from tests.cloud_index.stubs import stub_describe_key
+from cloud_index.aws.client import get_kms_key_manager
+from cloud_index.aws.error import AwsAccessError
+from tests.cloud_index.aws.stubs import stub_describe_key
 
 
 def test_get_kms_key_manager(session: Session) -> None:

@@ -1,6 +1,6 @@
 import pytest
 
-from cloud_index.internal.aws.resource_type import parse_resource_type
+from cloud_index.aws.resource_type import parse_resource_type
 from cloud_index.resource import ResourceType
 
 

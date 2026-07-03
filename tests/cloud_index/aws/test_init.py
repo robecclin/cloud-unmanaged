@@ -4,7 +4,7 @@ from botocore.stub import Stubber
 
 from cloud_index.aws import AwsAccessError, NoAggregatorIndexFoundError, index
 from cloud_index.resource import Resource, ResourceType
-from tests.cloud_index.stubs import (
+from tests.cloud_index.aws.stubs import (
     aws_resource,
     stub_describe_key,
     stub_list_indexes,

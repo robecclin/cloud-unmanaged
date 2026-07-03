@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from cloud_index.aws import NoAggregatorIndexFoundError
 from cloud_index.resource import Resource, ResourceType
-from tests.conftest import RunCli
+from tests.cloud_unmanaged.conftest import RunCli
 
 
 def test_main_index(run_cli: RunCli) -> None:
