@@ -14,7 +14,7 @@ Resources in AWS are discovered using AWS Resource Explorer.
 
 Configure AWS credentials using one of the [methods supported by Boto3](https://docs.aws.amazon.com/boto3/latest/guide/credentials.html).
 
-The supplied user or role should have the [`AWSResourceExplorerReadOnlyAccess` managed policy](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSResourceExplorerReadOnlyAccess.html) attached, or equivalent access.
+The supplied user or role should have the [`AWSResourceExplorerReadOnlyAccess` managed policy](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSResourceExplorerReadOnlyAccess.html) attached, or equivalent access. It also requires the [`kms:DescribeKey`](https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html) permission on all keys.
 
 ## Usage
 

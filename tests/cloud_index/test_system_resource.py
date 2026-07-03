@@ -1,4 +1,7 @@
+from unittest.mock import patch
+
 import pytest
+from boto3 import Session
 
 from cloud_index.internal.aws.system_resource import is_system_resource
 from cloud_index.resource import ResourceType
@@ -53,6 +56,25 @@ from cloud_index.resource import ResourceType
         ("xray", "sampling-rule", "my-sampling-rule", False),
     ],
 )
-def test_is_system_resource(service: str, kind: str, resource_id: str, expected: bool) -> None:
+def test_is_system_resource(
+    offline_session: Session, service: str, kind: str, resource_id: str, expected: bool
+) -> None:
     resource_type = ResourceType("aws", service, kind)
-    assert is_system_resource(resource_type, resource_id) is expected
+    assert is_system_resource(offline_session, resource_type, "us-east-1", resource_id) is expected
+
+
+@pytest.mark.parametrize(
+    ("key_manager", "expected"),
+    [
+        ("AWS", True),
+        ("CUSTOMER", False),
+    ],
+)
+def test_is_system_resource_kms_key(offline_session: Session, key_manager: str, expected: bool) -> None:
+    resource_type = ResourceType("aws", "kms", "key")
+    key_id = "72068baa-d0af-4942-abb9-bb08ad502707"
+    with patch(
+        "cloud_index.internal.aws.system_resource.get_kms_key_manager", return_value=key_manager
+    ) as get_key_manager:
+        assert is_system_resource(offline_session, resource_type, "us-east-1", key_id) is expected
+    get_key_manager.assert_called_once_with(offline_session, "us-east-1", key_id)
