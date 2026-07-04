@@ -15,6 +15,7 @@
 - `cloud_index` - Package for indexing cloud resources
 - `cloud_index.aws` - AWS resource indexer using AWS Resource Explorer
 - `cloud_index.error` - Base error class (`CloudIndexError`) for all errors exposed to callers
+- `cloud_index.progress` - Progress event and reporter interfaces
 - `cloud_index.resource` - Data class for representing resources (`Resource` and `ResourceType`)
 - `cloud_unmanaged` - Package for CLI app
 - `cloud_unmanaged.app` - Typer app object
@@ -47,4 +48,4 @@
 - Target Python 3.14 and dependency versions resolved by `uv.lock`; backwards compatibility is not required
 - Use strict type annotations; assertions are appropriate for internal invariants and type narrowing
 - Do not use assertions for user input, expected AWS failures or other recoverable runtime conditions
-- Do not prefix private modules, functions or variables with `_`, except in nested closures
+- Do not prefix private modules, private functions or private variables with `_`; it is allowed as a discard identifier

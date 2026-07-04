@@ -21,6 +21,13 @@ class AwsResource:
     type: str
 
 
+def create_session() -> Session:
+    try:
+        return Session()
+    except BotoCoreError as error:
+        raise AwsAccessError(f"Could not configure AWS session: {error}") from error
+
+
 def get_resource_explorer_client(session: Session, region: str) -> ResourceExplorerClient:
     client: ResourceExplorerClient = session.client("resource-explorer-2", region_name=region)
     return client
@@ -43,20 +50,22 @@ def get_kms_key_manager(session: Session, region: str, key_id: str) -> KeyManage
 
 
 def get_aggregator_region(session: Session) -> str:
-    client = get_resource_explorer_client(session, DEFAULT_REGION)
-    paginator = client.get_paginator("list_indexes")
-    for page in paginator.paginate():
-        for idx in page["Indexes"]:
-            assert "Type" in idx
-            assert "Region" in idx
-            if idx["Type"] == "AGGREGATOR":
-                return idx["Region"]
+    try:
+        client = get_resource_explorer_client(session, DEFAULT_REGION)
+        paginator = client.get_paginator("list_indexes")
+        for page in paginator.paginate():
+            for idx in page["Indexes"]:
+                assert "Type" in idx
+                assert "Region" in idx
+                if idx["Type"] == "AGGREGATOR":
+                    return idx["Region"]
+    except (BotoCoreError, ClientError) as error:
+        raise AwsAccessError(f"Could not query AWS Resource Explorer: {error}") from error
     raise NoAggregatorIndexFoundError()
 
 
-def get_resources(session: Session) -> Generator[AwsResource]:
+def get_resources(session: Session, region: str) -> Generator[AwsResource]:
     try:
-        region = get_aggregator_region(session)
         client = get_resource_explorer_client(session, region)
         paginator = client.get_paginator("list_resources")
         for page in paginator.paginate():

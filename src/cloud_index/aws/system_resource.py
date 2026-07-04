@@ -1,11 +1,18 @@
 from boto3 import Session
 
+from cloud_index.progress import ProgressEvent, ProgressReporter
 from cloud_index.resource import ResourceType
 
 from .client import get_kms_key_manager
 
 
-def is_system_resource(session: Session, resource_type: ResourceType, region: str, resource_id: str) -> bool:
+def is_system_resource(
+    session: Session,
+    resource_type: ResourceType,
+    region: str,
+    resource_id: str,
+    progress: ProgressReporter,
+) -> bool:
     """
     Returns true if a resource is a system resource, i.e., managed by AWS and cannot be deleted.
     This does not include implicit resources, which are resources that exist because they are
@@ -38,6 +45,7 @@ def is_system_resource(session: Session, resource_type: ResourceType, region: st
             return resource_id == "default"
         case "kms":
             # Keys are the only KMS resource type returned by AWS Resource Explorer
+            progress(ProgressEvent(f"Checking KMS key {resource_id} in {region}"))
             return is_system_kms_key(session, region, resource_id)
         case "memorydb":
             match resource_type.kind:

@@ -4,6 +4,7 @@ import pytest
 from boto3 import Session
 
 from cloud_index.aws.system_resource import is_system_resource
+from cloud_index.progress import ProgressEvent
 from cloud_index.resource import ResourceType
 
 
@@ -59,7 +60,7 @@ def test_is_system_resource(
     offline_session: Session, service: str, kind: str, resource_id: str, expected: bool
 ) -> None:
     resource_type = ResourceType("aws", service, kind)
-    assert is_system_resource(offline_session, resource_type, "us-east-1", resource_id) is expected
+    assert is_system_resource(offline_session, resource_type, "us-east-1", resource_id, lambda _: None) is expected
 
 
 @pytest.mark.parametrize(
@@ -72,6 +73,10 @@ def test_is_system_resource(
 def test_is_system_resource_kms_key(offline_session: Session, key_manager: str, expected: bool) -> None:
     resource_type = ResourceType("aws", "kms", "key")
     key_id = "72068baa-d0af-4942-abb9-bb08ad502707"
+    progress_events: list[ProgressEvent] = []
+
     with patch("cloud_index.aws.system_resource.get_kms_key_manager", return_value=key_manager) as get_key_manager:
-        assert is_system_resource(offline_session, resource_type, "us-east-1", key_id) is expected
+        actual = is_system_resource(offline_session, resource_type, "us-east-1", key_id, progress_events.append)
+    assert actual is expected
     get_key_manager.assert_called_once_with(offline_session, "us-east-1", key_id)
+    assert progress_events == [ProgressEvent(f"Checking KMS key {key_id} in us-east-1")]

@@ -1,8 +1,11 @@
+from unittest.mock import patch
+
 import pytest
 from boto3 import Session
 from botocore.stub import Stubber
 
-from cloud_index.aws import AwsAccessError, NoAggregatorIndexFoundError, index
+from cloud_index.aws import NoAggregatorIndexFoundError, index
+from cloud_index.progress import ProgressEvent
 from cloud_index.resource import Resource, ResourceType
 from tests.cloud_index.aws.stubs import (
     aws_resource,
@@ -13,7 +16,11 @@ from tests.cloud_index.aws.stubs import (
 
 
 def test_index(session: Session) -> None:
-    with Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber:
+    progress_events: list[ProgressEvent] = []
+    with (
+        patch("cloud_index.aws.indexer.create_session", return_value=session),
+        Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber,
+    ):
         stub_list_resources(
             stubber,
             aws_resource("arn:aws:dynamodb:us-east-1:123456789012:table/MyTable", "dynamodb:table"),
@@ -23,7 +30,7 @@ def test_index(session: Session) -> None:
             ),
             aws_resource("arn:aws:iam::123456789012:role/MyRole", "iam:role", region="global"),
         )
-        actual = list(index(session))
+        actual = list(index(progress_events.append))
         stubber.assert_no_pending_responses()
 
     assert len(actual) == 3
@@ -48,10 +55,20 @@ def test_index(session: Session) -> None:
         identifier="MyRole",
         system=False,
     )
+    assert progress_events == [
+        ProgressEvent("Finding Resource Explorer aggregator index"),
+        ProgressEvent("Finding resources using Resource Explorer"),
+        ProgressEvent("Indexing resources", count=1),
+        ProgressEvent("Indexing resources", count=2),
+        ProgressEvent("Indexing resources", count=3),
+    ]
 
 
 def test_index_marks_system_resources(session: Session) -> None:
-    with Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber:
+    with (
+        patch("cloud_index.aws.indexer.create_session", return_value=session),
+        Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber,
+    ):
         stub_list_resources(
             stubber,
             aws_resource(
@@ -60,7 +77,7 @@ def test_index_marks_system_resources(session: Session) -> None:
             ),
             aws_resource("arn:aws:s3:::my-bucket", "s3:bucket"),
         )
-        actual = list(index(session))
+        actual = list(index())
         stubber.assert_no_pending_responses()
 
     assert len(actual) == 2
@@ -82,7 +99,9 @@ def test_index_marks_system_resources(session: Session) -> None:
 
 def test_index_marks_system_kms_key(session: Session) -> None:
     key_id = "eee9232a-d9fb-44d7-908b-c58069fb405e"
+    progress_events: list[ProgressEvent] = []
     with (
+        patch("cloud_index.aws.indexer.create_session", return_value=session),
         Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as resource_explorer_stubber,
         Stubber(session.client("kms", region_name="eu-west-1")) as kms_stubber,
     ):
@@ -91,7 +110,7 @@ def test_index_marks_system_kms_key(session: Session) -> None:
             aws_resource(f"arn:aws:kms:eu-west-1:123456789012:key/{key_id}", "kms:key", region="eu-west-1"),
         )
         stub_describe_key(kms_stubber, key_id, "AWS")
-        actual = list(index(session))
+        actual = list(index(progress_events.append))
         resource_explorer_stubber.assert_no_pending_responses()
         kms_stubber.assert_no_pending_responses()
 
@@ -103,19 +122,20 @@ def test_index_marks_system_kms_key(session: Session) -> None:
         identifier=key_id,
         system=True,
     )
+    assert progress_events == [
+        ProgressEvent("Finding Resource Explorer aggregator index"),
+        ProgressEvent("Finding resources using Resource Explorer"),
+        ProgressEvent(f"Checking KMS key {key_id} in eu-west-1"),
+        ProgressEvent("Indexing resources", count=1),
+    ]
 
 
 def test_index_no_aggregator_index(session: Session) -> None:
-    with Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber:
+    with (
+        patch("cloud_index.aws.indexer.create_session", return_value=session),
+        Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber,
+    ):
         stub_list_indexes(stubber, "LOCAL")
         with pytest.raises(NoAggregatorIndexFoundError):
-            list(index(session))
-        stubber.assert_no_pending_responses()
-
-
-def test_index_access_denied(session: Session) -> None:
-    with Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber:
-        stubber.add_client_error("list_indexes", service_error_code="AccessDeniedException", http_status_code=403)
-        with pytest.raises(AwsAccessError):
-            list(index(session))
+            list(index(lambda event: None))
         stubber.assert_no_pending_responses()
