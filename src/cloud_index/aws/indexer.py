@@ -5,7 +5,6 @@ from cloud_index.resource import Resource
 
 from .arn import parse_arn
 from .client import create_session, get_aggregator_region, get_resources
-from .regions import resolve_region
 from .resource_type import parse_resource_type
 from .system_resource import is_system_resource
 
@@ -28,3 +27,9 @@ def index(progress: ProgressReporter = lambda _: None) -> Generator[Resource]:
         )
         progress(ProgressEvent("Indexing resources", count=n))
         yield resource
+
+
+def resolve_region(region: str) -> str:
+    if region == "global":
+        return "aws-global"
+    return region

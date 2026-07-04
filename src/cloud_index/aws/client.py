@@ -1,16 +1,19 @@
 from collections.abc import Generator
 from dataclasses import dataclass
 from functools import cache
+from typing import Literal
 
 from boto3 import Session
 from botocore.exceptions import BotoCoreError, ClientError
+from botocore.session import Session as BotoCoreSession
 from types_boto3_kms import KMSClient
-from types_boto3_kms.literals import KeyManagerTypeType
 from types_boto3_resource_explorer_2 import ResourceExplorerClient
 
 from .error import AwsAccessError, NoAggregatorIndexFoundError
 
 DEFAULT_REGION = "us-east-1"
+
+type KeyManager = Literal["AWS", "CUSTOMER"]
 
 
 @dataclass
@@ -21,11 +24,25 @@ class AwsResource:
     type: str
 
 
+@dataclass
+class KmsKey:
+    key_manager: KeyManager
+
+
 def create_session() -> Session:
     try:
         return Session()
     except BotoCoreError as error:
         raise AwsAccessError(f"Could not configure AWS session: {error}") from error
+
+
+def get_available_regions() -> set[str]:
+    loader = BotoCoreSession().get_component("data_loader")
+    partitions = loader.load_data("partitions")
+    regions: set[str] = set()
+    for partition in partitions["partitions"]:
+        regions.update(partition["regions"])
+    return regions
 
 
 def get_resource_explorer_client(session: Session, region: str) -> ResourceExplorerClient:
@@ -39,14 +56,14 @@ def get_kms_client(session: Session, region: str) -> KMSClient:
     return client
 
 
-def get_kms_key_manager(session: Session, region: str, key_id: str) -> KeyManagerTypeType:
+def get_kms_key(session: Session, region: str, key_id: str) -> KmsKey:
     client = get_kms_client(session, region)
     try:
         metadata = client.describe_key(KeyId=key_id)["KeyMetadata"]
     except (BotoCoreError, ClientError) as error:
         raise AwsAccessError(f"Could not describe KMS key {key_id}: {error}") from error
     assert "KeyManager" in metadata
-    return metadata["KeyManager"]
+    return KmsKey(key_manager=metadata["KeyManager"])
 
 
 def get_aggregator_region(session: Session) -> str:
