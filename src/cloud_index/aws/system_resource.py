@@ -3,7 +3,7 @@ from boto3 import Session
 from cloud_index.progress import ProgressEvent, ProgressReporter
 from cloud_index.resource import ResourceType
 
-from .client import get_kms_key_manager
+from .client import get_kms_key
 
 
 def is_system_resource(
@@ -76,4 +76,4 @@ def is_system_resource(
 
 
 def is_system_kms_key(session: Session, region: str, resource_id: str) -> bool:
-    return get_kms_key_manager(session, region, resource_id) == "AWS"
+    return get_kms_key(session, region, resource_id).key_manager == "AWS"

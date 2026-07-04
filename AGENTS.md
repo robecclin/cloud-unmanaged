@@ -49,3 +49,4 @@
 - Use strict type annotations; assertions are appropriate for internal invariants and type narrowing
 - Do not use assertions for user input, expected AWS failures or other recoverable runtime conditions
 - Do not prefix private modules, private functions or private variables with `_`; it is allowed as a discard identifier
+- Keep commit messages concise, lowercase, at most 72 characters and without a period; include the reason only when space permits
