@@ -9,7 +9,7 @@ from cloud_index.error import CloudIndexError
 from cloud_unmanaged.app import app
 
 console = Console()
-err_console = Console(stderr=True)
+err_console = Console(stderr=True, highlight=False)
 
 
 @app.command(help="Discover resources using AWS Resource Explorer")
