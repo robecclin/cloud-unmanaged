@@ -1,6 +1,10 @@
+from io import StringIO
 from unittest.mock import patch
 
+from rich.console import Console
+
 from cloud_index.aws import NoAggregatorIndexFoundError
+from cloud_index.progress import ProgressEvent, ProgressReporter
 from cloud_index.resource import Resource, ResourceType
 from tests.cloud_unmanaged.conftest import RunCli
 
@@ -22,19 +26,39 @@ def test_main_index(run_cli: RunCli) -> None:
             system=False,
         ),
     ]
-    with patch("cloud_unmanaged.command.index.index_aws", return_value=iter(resources)):
+    progress_output = StringIO()
+    progress_console = Console(file=progress_output, force_terminal=True, color_system=None)
+
+    def index_with_progress(progress: ProgressReporter) -> list[Resource]:
+        progress(ProgressEvent("Finding resources using Resource Explorer"))
+        progress(ProgressEvent("Indexing resources", count=len(resources)))
+        return resources
+
+    with (
+        patch("cloud_unmanaged.command.index.err_console", progress_console),
+        patch("cloud_unmanaged.command.index.index_aws", side_effect=index_with_progress),
+    ):
         result = run_cli("index")
-        assert result.exit_code == 0
-        assert "aws:s3:bucket" in result.stdout
-        assert "us-east-bucket" in result.stdout
-        assert "us-west-bucket" in result.stdout
+
+    output = progress_output.getvalue()
+    assert result.exit_code == 0
+    assert "aws:s3:bucket" in result.stdout
+    assert "us-east-bucket" in result.stdout
+    assert "us-west-bucket" in result.stdout
+    assert "Indexing resources (Found 2)" in output
 
 
 def test_index_no_aggregator_region(run_cli: RunCli) -> None:
-    with patch("cloud_unmanaged.command.index.index_aws", side_effect=NoAggregatorIndexFoundError()):
+    def fail_after_progress(progress: ProgressReporter) -> list[Resource]:
+        progress(ProgressEvent("Finding resources using Resource Explorer"))
+        raise NoAggregatorIndexFoundError()
+
+    with patch("cloud_unmanaged.command.index.index_aws", side_effect=fail_after_progress):
         result = run_cli("index")
-        assert result.exit_code == 1
-        assert "No aggregator index found" in result.stderr
+
+    assert result.exit_code == 1
+    assert "No aggregator index found" in result.stderr
+    assert "Finding resources" not in result.stderr
 
 
 def test_main_index_zero_resources(run_cli: RunCli) -> None:

@@ -1,11 +1,12 @@
-from boto3 import Session
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 from typer import Exit, Option
 
 from cloud_index.aws import get_available_regions
 from cloud_index.aws import index as index_aws
 from cloud_index.error import CloudIndexError
+from cloud_index.progress import ProgressEvent
 from cloud_unmanaged.app import app
 
 console = Console()
@@ -21,8 +22,6 @@ def index(
         err_console.print(f"Invalid region: {region}", style="red", markup=False)
         raise Exit(1)
 
-    session = Session()
-
     table = Table()
     table.add_column("Account")
     table.add_column("Region")
@@ -30,17 +29,37 @@ def index(
     table.add_column("ID")
 
     try:
-        for resource in index_aws(session):
-            if not include_system and resource.system:
-                continue
-            if region and resource.region != region:
-                continue
-            table.add_row(
-                resource.account,
-                resource.region,
-                str(resource.type),
-                resource.identifier,
-            )
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("{task.description}"),
+            TextColumn("{task.fields[count]}"),
+            console=err_console,
+            transient=True,
+            disable=not err_console.is_terminal,
+        ) as progress:
+            task = progress.add_task("Indexing AWS resources", count="(Found 0)")
+
+            def update_progress(event: ProgressEvent) -> None:
+                if event.count is None:
+                    progress.update(task, description=event.message)
+                else:
+                    progress.update(
+                        task,
+                        description=event.message,
+                        count=f"(Found {event.count})",
+                    )
+
+            for resource in index_aws(update_progress):
+                if not include_system and resource.system:
+                    continue
+                if region and resource.region != region:
+                    continue
+                table.add_row(
+                    resource.account,
+                    resource.region,
+                    str(resource.type),
+                    resource.identifier,
+                )
     except CloudIndexError as error:
         err_console.print(str(error), style="red", markup=False)
         raise Exit(1) from error

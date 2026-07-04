@@ -14,7 +14,7 @@ class RunCli(Protocol):
 def run_cli() -> RunCli:
     runner = CliRunner()
 
-    def _run(*args: str) -> Result:
+    def run(*args: str) -> Result:
         return runner.invoke(app, list(args))
 
-    return _run
+    return run
