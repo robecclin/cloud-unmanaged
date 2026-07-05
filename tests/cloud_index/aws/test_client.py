@@ -36,7 +36,7 @@ def test_get_available_regions() -> None:
     assert "aws-global" in regions
 
 
-def test_get_kms_client_caches_clients(session: Session) -> None:
+def test_get_kms_client_repeated_region(session: Session) -> None:
     with patch.object(session, "client", wraps=session.client) as create_client:
         get_kms_client(session, "us-east-1")
         get_kms_client(session, "us-east-1")
