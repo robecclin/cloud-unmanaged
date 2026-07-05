@@ -20,8 +20,14 @@ The supplied user or role should have the [`AWSResourceExplorerReadOnlyAccess` m
 
 ### Index resources
 
-List all resources discoverable using the current credentials:
+Discover and save resources using the current credentials:
 
 ```sh
 uv run cloud-unmanaged index
+```
+
+Display the indexed resources:
+
+```sh
+uv run cloud-unmanaged show
 ```

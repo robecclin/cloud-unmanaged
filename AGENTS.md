@@ -33,8 +33,10 @@
   - Library tests covering exported interfaces
   - Command tests with mocked library interfaces
   - Unit tests of discrete logic
-- Avoid redundant assertions across layers; test behavior at the lowest appropriate layer
+- Prefer integration tests through clear, non-contrived pathways; use lower-level tests only when necessary and avoid redundant coverage
+- Name tests for the scenario being exercised, not the expected result; name the primary expected path `test_<subject>`
 - Mock only when necessary to isolate external systems or architectural boundaries; otherwise use real objects
+- Do not use pytest's `monkeypatch` fixture
 - Tests must not require live credentials or network access
 
 ## Development commands

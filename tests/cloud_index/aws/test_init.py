@@ -64,7 +64,7 @@ def test_index(session: Session) -> None:
     ]
 
 
-def test_index_marks_system_resources(session: Session) -> None:
+def test_index_system_resources(session: Session) -> None:
     with (
         patch("cloud_index.aws.indexer.create_session", return_value=session),
         Stubber(session.client("resource-explorer-2", region_name="us-east-1")) as stubber,
@@ -97,7 +97,7 @@ def test_index_marks_system_resources(session: Session) -> None:
     )
 
 
-def test_index_marks_system_kms_key(session: Session) -> None:
+def test_index_system_kms_key(session: Session) -> None:
     key_id = "eee9232a-d9fb-44d7-908b-c58069fb405e"
     progress_events: list[ProgressEvent] = []
     with (
