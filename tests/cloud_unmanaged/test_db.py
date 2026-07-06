@@ -44,7 +44,7 @@ def test_init_db(tmp_path: Path) -> None:
         engine = create_engine(get_db_dsn())
         try:
             init_db(engine)
-            assert inspect(engine).get_table_names() == ["resource"]
+            assert inspect(engine).get_table_names() == ["logical_resource", "physical_resource"]
         finally:
             engine.dispose()
 

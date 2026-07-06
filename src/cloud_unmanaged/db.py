@@ -9,8 +9,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 metadata = MetaData()
 
-resource_table = Table(
-    "resource",
+physical_resource_table = Table(
+    "physical_resource",
     metadata,
     Column("account", Text(), nullable=False),
     Column("region", Text(), nullable=False),
@@ -20,6 +20,20 @@ resource_table = Table(
     Column("identifier", Text(), nullable=False),
     Column("system", Boolean(), nullable=False),
     UniqueConstraint("account", "region", "cloud", "service", "type", "identifier"),
+)
+
+logical_resource_table = Table(
+    "logical_resource",
+    metadata,
+    Column("account", Text(), nullable=False),
+    Column("region", Text(), nullable=False),
+    Column("cloud", Text(), nullable=False),
+    Column("service", Text(), nullable=False),
+    Column("type", Text(), nullable=False),
+    Column("identifier", Text(), nullable=False),
+    Column("locator", Text(), nullable=False),
+    Column("name", Text(), nullable=False),
+    UniqueConstraint("locator", "name"),
 )
 
 

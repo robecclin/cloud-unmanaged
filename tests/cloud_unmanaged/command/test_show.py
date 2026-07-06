@@ -1,26 +1,26 @@
 from unittest.mock import patch
 
-from cloud_index.resource import Resource, ResourceType
+from cloud_index.resource import PhysicalResource, ResourceType
 from cloud_unmanaged.db import DatabaseError, transaction
 from cloud_unmanaged.repository import save
 from tests.cloud_unmanaged.conftest import RunCli
 
 
-def store(*resources: Resource) -> None:
+def store(*resources: PhysicalResource) -> None:
     with transaction() as connection:
         for resource in resources:
             save(connection, resource)
 
 
 def test_show(run_cli: RunCli) -> None:
-    system_resource = Resource(
+    system_resource = PhysicalResource(
         account="123456789012",
         region="us-east-1",
         type=ResourceType("aws", "iam", "role"),
         identifier="aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
         system=True,
     )
-    non_system_resource = Resource(
+    non_system_resource = PhysicalResource(
         account="123456789012",
         region="us-east-1",
         type=ResourceType("aws", "s3", "bucket"),
@@ -38,14 +38,14 @@ def test_show(run_cli: RunCli) -> None:
 
 
 def test_show_include_system(run_cli: RunCli) -> None:
-    system_resource = Resource(
+    system_resource = PhysicalResource(
         account="123456789012",
         region="us-east-1",
         type=ResourceType("aws", "iam", "role"),
         identifier="aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
         system=True,
     )
-    non_system_resource = Resource(
+    non_system_resource = PhysicalResource(
         account="123456789012",
         region="us-west-2",
         type=ResourceType("aws", "s3", "bucket"),
@@ -62,14 +62,14 @@ def test_show_include_system(run_cli: RunCli) -> None:
 
 
 def test_show_region(run_cli: RunCli) -> None:
-    us_east_resource = Resource(
+    us_east_resource = PhysicalResource(
         account="123456789012",
         region="us-east-1",
         type=ResourceType("aws", "s3", "bucket"),
         identifier="us-east-bucket",
         system=False,
     )
-    us_west_resource = Resource(
+    us_west_resource = PhysicalResource(
         account="123456789012",
         region="us-west-2",
         type=ResourceType("aws", "s3", "bucket"),
@@ -86,14 +86,14 @@ def test_show_region(run_cli: RunCli) -> None:
 
 
 def test_show_order(run_cli: RunCli) -> None:
-    second_resource = Resource(
+    second_resource = PhysicalResource(
         account="123456789012",
         region="us-west-2",
         type=ResourceType("aws", "s3", "bucket"),
         identifier="second",
         system=False,
     )
-    first_resource = Resource(
+    first_resource = PhysicalResource(
         account="123456789012",
         region="us-east-1",
         type=ResourceType("aws", "s3", "bucket"),
@@ -110,7 +110,7 @@ def test_show_order(run_cli: RunCli) -> None:
 
 def test_show_region_no_matches(run_cli: RunCli) -> None:
     store(
-        Resource(
+        PhysicalResource(
             account="123456789012",
             region="us-east-1",
             type=ResourceType("aws", "s3", "bucket"),

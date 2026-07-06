@@ -17,4 +17,14 @@ class Resource:
     account: str
     region: str
     identifier: str
+
+
+@dataclass
+class PhysicalResource(Resource):
     system: bool
+
+
+@dataclass
+class LogicalResource(Resource):
+    locator: str
+    name: str

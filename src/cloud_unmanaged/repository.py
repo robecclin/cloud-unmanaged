@@ -2,45 +2,60 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.engine import Connection
 
-from cloud_index.resource import Resource, ResourceType
-from cloud_unmanaged.db import resource_table
+from cloud_index.resource import LogicalResource, PhysicalResource, ResourceType
+from cloud_unmanaged.db import logical_resource_table, physical_resource_table
 
 
 def clear(connection: Connection) -> None:
-    connection.execute(delete(resource_table))
+    connection.execute(delete(physical_resource_table))
+    connection.execute(delete(logical_resource_table))
 
 
-def save(connection: Connection, resource: Resource) -> bool:
-    stmt = insert(resource_table).values(
-        account=resource.account,
-        region=resource.region,
-        cloud=resource.type.cloud,
-        service=resource.type.service,
-        type=resource.type.kind,
-        identifier=resource.identifier,
-        system=resource.system,
-    )
+def save(connection: Connection, resource: PhysicalResource | LogicalResource) -> bool:
+    if isinstance(resource, PhysicalResource):
+        stmt = insert(physical_resource_table).values(
+            account=resource.account,
+            region=resource.region,
+            cloud=resource.type.cloud,
+            service=resource.type.service,
+            type=resource.type.kind,
+            identifier=resource.identifier,
+            system=resource.system,
+        )
+    else:
+        stmt = insert(logical_resource_table).values(
+            account=resource.account,
+            region=resource.region,
+            cloud=resource.type.cloud,
+            service=resource.type.service,
+            type=resource.type.kind,
+            identifier=resource.identifier,
+            locator=resource.locator,
+            name=resource.name,
+        )
     result = connection.execute(stmt.on_conflict_do_nothing())
     return result.rowcount > 0
 
 
-def load(connection: Connection, include_system: bool = False, region: str | None = None) -> list[Resource]:
-    stmt = select(resource_table).order_by(
-        resource_table.c.account,
-        resource_table.c.region,
-        resource_table.c.cloud,
-        resource_table.c.service,
-        resource_table.c.type,
-        resource_table.c.identifier,
+def load_physical(
+    connection: Connection, include_system: bool = False, region: str | None = None
+) -> list[PhysicalResource]:
+    stmt = select(physical_resource_table).order_by(
+        physical_resource_table.c.account,
+        physical_resource_table.c.region,
+        physical_resource_table.c.cloud,
+        physical_resource_table.c.service,
+        physical_resource_table.c.type,
+        physical_resource_table.c.identifier,
     )
     if not include_system:
-        stmt = stmt.where(resource_table.c.system.is_(False))
+        stmt = stmt.where(physical_resource_table.c.system.is_(False))
     if region:
-        stmt = stmt.where(resource_table.c.region == region)
+        stmt = stmt.where(physical_resource_table.c.region == region)
 
     rows = connection.execute(stmt).mappings()
     return [
-        Resource(
+        PhysicalResource(
             account=row.account,
             region=row.region,
             type=ResourceType(row.cloud, row.service, row.type),
