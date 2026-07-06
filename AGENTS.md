@@ -13,10 +13,11 @@
 ## Module layout
 
 - `cloud_index` - Package for indexing cloud resources
-- `cloud_index.aws` - AWS resource indexer using AWS Resource Explorer
+- `cloud_index.aws` - Physical resource indexer using AWS Resource Explorer
+- `cloud_index.cloudformation` - Logical resource indexer using AWS CloudFormation
 - `cloud_index.error` - Base error class (`CloudIndexError`) for all errors exposed to callers
 - `cloud_index.progress` - Progress event and reporter interfaces
-- `cloud_index.resource` - Data class for representing resources (`Resource` and `ResourceType`)
+- `cloud_index.resource` - Data classes for representing resources (`Resource`, `PhysicalResource`, `LogicalResource`, `ResourceType`)
 - `cloud_unmanaged` - Package for CLI app
 - `cloud_unmanaged.app` - Typer app object
 - `cloud_unmanaged.main` - Entrypoint and command registration

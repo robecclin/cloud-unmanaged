@@ -4,7 +4,10 @@ from tests.cloud_unmanaged.conftest import RunCli
 
 
 def test_main(run_cli: RunCli) -> None:
-    with patch("cloud_unmanaged.command.index.index_aws", return_value=iter([])):
+    with (
+        patch("cloud_unmanaged.command.index.index_aws", return_value=iter([])),
+        patch("cloud_unmanaged.command.index.index_cloudformation", return_value=iter([])),
+    ):
         result = run_cli("index")
     assert result.exit_code == 0
     assert result.stderr == ""

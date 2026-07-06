@@ -6,7 +6,7 @@ from botocore.stub import Stubber
 
 from cloud_index.aws import NoAggregatorIndexFoundError, index
 from cloud_index.progress import ProgressEvent
-from cloud_index.resource import Resource, ResourceType
+from cloud_index.resource import PhysicalResource, ResourceType
 from tests.cloud_index.aws.stubs import (
     aws_resource,
     stub_describe_key,
@@ -34,21 +34,21 @@ def test_index(session: Session) -> None:
         stubber.assert_no_pending_responses()
 
     assert len(actual) == 3
-    assert actual[0] == Resource(
+    assert actual[0] == PhysicalResource(
         type=ResourceType("aws", "dynamodb", "table"),
         account="123456789012",
         region="us-east-1",
         identifier="MyTable",
         system=False,
     )
-    assert actual[1] == Resource(
+    assert actual[1] == PhysicalResource(
         type=ResourceType("aws", "resource-explorer-2", "index"),
         account="123456789012",
         region="us-east-1",
         identifier="0238d232-7a99-41b9-9e3e-d71e97d571c5",
         system=False,
     )
-    assert actual[2] == Resource(
+    assert actual[2] == PhysicalResource(
         type=ResourceType("aws", "iam", "role"),
         account="123456789012",
         region="aws-global",
@@ -58,9 +58,9 @@ def test_index(session: Session) -> None:
     assert progress_events == [
         ProgressEvent("Finding Resource Explorer aggregator index"),
         ProgressEvent("Finding resources using Resource Explorer"),
-        ProgressEvent("Indexing resources", count=1),
-        ProgressEvent("Indexing resources", count=2),
-        ProgressEvent("Indexing resources", count=3),
+        ProgressEvent("Indexing resources"),
+        ProgressEvent("Indexing resources"),
+        ProgressEvent("Indexing resources"),
     ]
 
 
@@ -81,14 +81,14 @@ def test_index_system_resources(session: Session) -> None:
         stubber.assert_no_pending_responses()
 
     assert len(actual) == 2
-    assert actual[0] == Resource(
+    assert actual[0] == PhysicalResource(
         type=ResourceType("aws", "iam", "role"),
         account="123456789012",
         region="us-east-1",
         identifier="aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
         system=True,
     )
-    assert actual[1] == Resource(
+    assert actual[1] == PhysicalResource(
         type=ResourceType("aws", "s3", "bucket"),
         account="123456789012",
         region="us-east-1",
@@ -115,7 +115,7 @@ def test_index_system_kms_key(session: Session) -> None:
         kms_stubber.assert_no_pending_responses()
 
     assert len(actual) == 1
-    assert actual[0] == Resource(
+    assert actual[0] == PhysicalResource(
         type=ResourceType("aws", "kms", "key"),
         account="123456789012",
         region="eu-west-1",
@@ -126,7 +126,7 @@ def test_index_system_kms_key(session: Session) -> None:
         ProgressEvent("Finding Resource Explorer aggregator index"),
         ProgressEvent("Finding resources using Resource Explorer"),
         ProgressEvent(f"Checking KMS key {key_id} in eu-west-1"),
-        ProgressEvent("Indexing resources", count=1),
+        ProgressEvent("Indexing resources"),
     ]
 
 

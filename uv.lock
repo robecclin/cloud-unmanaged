@@ -105,7 +105,7 @@ dependencies = [
     { name = "rich" },
     { name = "sqlalchemy" },
     { name = "typer" },
-    { name = "types-boto3-lite", extra = ["kms", "resource-explorer-2"] },
+    { name = "types-boto3-lite", extra = ["account", "cloudformation", "kms", "resource-explorer-2"] },
 ]
 
 [package.dev-dependencies]
@@ -126,7 +126,7 @@ requires-dist = [
     { name = "rich", specifier = ">=15.0.0" },
     { name = "sqlalchemy", specifier = ">=2.0.51" },
     { name = "typer", specifier = ">=0.26.8" },
-    { name = "types-boto3-lite", extras = ["kms", "resource-explorer-2"], specifier = ">=1.43.40" },
+    { name = "types-boto3-lite", extras = ["account", "cloudformation", "kms", "resource-explorer-2"], specifier = ">=1.43.40" },
 ]
 
 [package.metadata.requires-dev]
@@ -598,6 +598,24 @@ wheels = [
 ]
 
 [[package]]
+name = "types-boto3-account"
+version = "1.43.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/5f/25fd6acab4b6a08c2e66ed944e137a168c96b40b96fce117120d6041fcd5/types_boto3_account-1.43.0.tar.gz", hash = "sha256:a61f472110e7b7b0a6a4c57b83cf6d0cc347cfc9d387f109129ce2fe4fd8d1d8", size = 17645, upload-time = "2026-04-29T22:58:27.743Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/57/27/a9dee63bb70caef3b803c5448481a3808ce32700ee44c81e0e5b248b692a/types_boto3_account-1.43.0-py3-none-any.whl", hash = "sha256:9053b5341636d85155c540af8067d90a1246becd516e3547c804095c48976674", size = 23098, upload-time = "2026-04-29T22:58:26.588Z" },
+]
+
+[[package]]
+name = "types-boto3-cloudformation"
+version = "1.43.38"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/bb/08193a18638576508fd5c1825539e32862b9c42fd4cb897e1a03d4d3eeb9/types_boto3_cloudformation-1.43.38.tar.gz", hash = "sha256:1faa50da6e7a2f9605ea19da08205fd85c9d92400afb0b23b39f12e526ee2eaf", size = 61081, upload-time = "2026-06-30T21:05:55.726Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/70/fe/5aaa576be8b6bf8f83083cbc5e5ae6263b96328cad2395abe83cee515aa7/types_boto3_cloudformation-1.43.38-py3-none-any.whl", hash = "sha256:2fc48380069c3a6359fc49e88ac9d3ccf12dd51c7b3853ac2a60fd7722da0ede", size = 72194, upload-time = "2026-06-30T21:05:53.991Z" },
+]
+
+[[package]]
 name = "types-boto3-kms"
 version = "1.43.12"
 source = { registry = "https://pypi.org/simple" }
@@ -620,6 +638,12 @@ wheels = [
 ]
 
 [package.optional-dependencies]
+account = [
+    { name = "types-boto3-account" },
+]
+cloudformation = [
+    { name = "types-boto3-cloudformation" },
+]
 kms = [
     { name = "types-boto3-kms" },
 ]

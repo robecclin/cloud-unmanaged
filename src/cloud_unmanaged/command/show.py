@@ -5,7 +5,7 @@ from typer import Exit, Option
 from cloud_index.aws import get_available_regions
 from cloud_unmanaged.app import app
 from cloud_unmanaged.db import DatabaseError, transaction
-from cloud_unmanaged.repository import load
+from cloud_unmanaged.repository import load_physical
 
 console = Console()
 err_console = Console(stderr=True, highlight=False)
@@ -28,7 +28,7 @@ def show(
 
     try:
         with transaction() as connection:
-            for resource in load(connection, include_system=include_system, region=region):
+            for resource in load_physical(connection, include_system=include_system, region=region):
                 table.add_row(
                     resource.account,
                     resource.region,
