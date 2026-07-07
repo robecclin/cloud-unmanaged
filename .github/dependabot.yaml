@@ -9,3 +9,8 @@ updates:
     directory: /
     schedule:
       interval: daily
+    groups:
+      boto3:
+        patterns:
+          - boto3
+          - types-boto3-lite*
