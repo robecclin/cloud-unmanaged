@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select
+from sqlalchemy import delete, exists, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.engine import Connection
 
@@ -38,7 +38,10 @@ def save(connection: Connection, resource: PhysicalResource | LogicalResource) -
 
 
 def load_physical(
-    connection: Connection, include_system: bool = False, region: str | None = None
+    connection: Connection,
+    include_system: bool = False,
+    region: str | None = None,
+    managed: bool | None = None,
 ) -> list[PhysicalResource]:
     stmt = select(physical_resource_table).order_by(
         physical_resource_table.c.account,
@@ -52,6 +55,16 @@ def load_physical(
         stmt = stmt.where(physical_resource_table.c.system.is_(False))
     if region:
         stmt = stmt.where(physical_resource_table.c.region == region)
+    if managed is not None:
+        match_exists = exists().where(
+            logical_resource_table.c.account == physical_resource_table.c.account,
+            logical_resource_table.c.region == physical_resource_table.c.region,
+            logical_resource_table.c.cloud == physical_resource_table.c.cloud,
+            logical_resource_table.c.service == physical_resource_table.c.service,
+            logical_resource_table.c.type == physical_resource_table.c.type,
+            logical_resource_table.c.identifier == physical_resource_table.c.identifier,
+        )
+        stmt = stmt.where(match_exists if managed else ~match_exists)
 
     rows = connection.execute(stmt).mappings()
     return [
