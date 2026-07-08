@@ -8,8 +8,8 @@ from cloud_index.resource import ResourceType
     "resource_type,physical_id,expected",
     [
         (ResourceType("aws", "dynamodb", "table"), "MyTable", "MyTable"),
-        (ResourceType("aws", "ec2", "security-group-ingress"), "MyIngress", None),
-        (ResourceType("aws", "ec2", "security-group-ingress"), "sgr-04d366fdc35a0a4b3", "sgr-04d366fdc35a0a4b3"),
+        (ResourceType("aws", "ec2", "security-group-rule"), "MyIngress", None),
+        (ResourceType("aws", "ec2", "security-group-rule"), "sgr-04d366fdc35a0a4b3", "sgr-04d366fdc35a0a4b3"),
         (ResourceType("aws", "cloudformation", "custom-resource"), "arn:my-resource", "arn:my-resource"),
         (ResourceType("aws", "ec2", "vpc"), "vpc-0e19a7a49b325abc2", "vpc-0e19a7a49b325abc2"),
         (ResourceType("aws", "sns", "topic"), "arn:aws:sns:us-east-1:123456789012:MyTopic", "MyTopic"),

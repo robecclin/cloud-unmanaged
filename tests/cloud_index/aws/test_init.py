@@ -75,12 +75,13 @@ def test_index_system_resources(session: Session) -> None:
                 "arn:aws:iam::123456789012:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
                 "iam:role",
             ),
+            aws_resource("arn:aws:rds:us-east-1:123456789012:pg:default.postgres17", "rds:pg"),
             aws_resource("arn:aws:s3:::my-bucket", "s3:bucket"),
         )
         actual = list(index())
         stubber.assert_no_pending_responses()
 
-    assert len(actual) == 2
+    assert len(actual) == 3
     assert actual[0] == PhysicalResource(
         type=ResourceType("aws", "iam", "role"),
         account="123456789012",
@@ -89,6 +90,13 @@ def test_index_system_resources(session: Session) -> None:
         system=True,
     )
     assert actual[1] == PhysicalResource(
+        type=ResourceType("aws", "rds", "db-parameter-group"),
+        account="123456789012",
+        region="us-east-1",
+        identifier="default.postgres17",
+        system=True,
+    )
+    assert actual[2] == PhysicalResource(
         type=ResourceType("aws", "s3", "bucket"),
         account="123456789012",
         region="us-east-1",
