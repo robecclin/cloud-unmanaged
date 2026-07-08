@@ -22,7 +22,7 @@ cloud-unmanaged = "cloud_unmanaged.main:app"
 
 [build-system]
 build-backend = "uv_build"
-requires = ["uv_build>=0.11.27,<0.12"]
+requires = ["uv_build>=0.11.28,<0.12"]
 
 [dependency-groups]
 dev = [
