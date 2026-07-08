@@ -10,11 +10,11 @@ classifiers = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "boto3>=1.43.41",
+    "boto3>=1.43.42",
     "rich>=15.0.0",
     "sqlalchemy>=2.0.51",
     "typer>=0.26.8",
-    "types-boto3-lite[account,cloudformation,kms,resource-explorer-2]>=1.43.41",
+    "types-boto3-lite[account,cloudformation,kms,resource-explorer-2]>=1.43.42",
 ]
 
 [project.scripts]
