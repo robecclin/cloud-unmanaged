@@ -19,11 +19,11 @@ def is_system_resource(
     created automatically by another resource type, e.g., a default subnet in a VPC.
     """
     match resource_type.service:
-        case "apprunner" if resource_type.kind == "autoscalingconfiguration":
+        case "apprunner" if resource_type.kind == "auto-scaling-configuration":
             return resource_id.startswith("DefaultConfiguration/")
         case "athena":
             match resource_type.kind:
-                case "datacatalog":
+                case "data-catalog":
                     return resource_id == "AwsDataCatalog"
                 case "workgroup":
                     return resource_id == "primary"
@@ -51,7 +51,7 @@ def is_system_resource(
             match resource_type.kind:
                 case "acl":
                     return resource_id == "open-access"
-                case "parametergroup":
+                case "parameter-group":
                     return resource_id.startswith("default.")
                 case "user":
                     return resource_id == "default"
@@ -59,11 +59,11 @@ def is_system_resource(
                     return False
         case "rds":
             match resource_type.kind:
-                case "cluster-pg" | "pg":
+                case "db-cluster-parameter-group" | "db-parameter-group":
                     return resource_id.startswith("default.")
-                case "og":
+                case "option-group":
                     return resource_id.startswith("default:")
-                case "secgrp" | "subgrp":
+                case "db-security-group" | "db-subnet-group":
                     return resource_id == "default"
                 case _:
                     return False

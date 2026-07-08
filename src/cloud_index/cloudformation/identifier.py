@@ -15,7 +15,7 @@ def parse_identifier(resource_type: ResourceType, physical_id: str) -> str | Non
         pass
 
     match resource_type.service:
-        case "ec2" if resource_type.kind == "security-group-ingress" and not physical_id.startswith("sgr-"):
+        case "ec2" if resource_type.kind == "security-group-rule" and not physical_id.startswith("sgr-"):
             # Older templates report a pseudo id that does not identify the rule
             return None
         case "sqs" if resource_type.kind == "queue":

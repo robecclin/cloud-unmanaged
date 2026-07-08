@@ -1,0 +1,61 @@
+import pytest
+
+from cloud_index.aws.resource_type import parse_resource_type as parse_physical_type
+from cloud_index.cloudformation.resource_type import parse_resource_type as parse_logical_type
+
+
+@pytest.mark.parametrize(
+    "physical_type,cloudformation_type",
+    [
+        ("acm:certificate", "AWS::CertificateManager::Certificate"),
+        ("apigateway:restapis", "AWS::ApiGateway::RestApi"),
+        ("apigateway:restapis/deployments", "AWS::ApiGateway::Deployment"),
+        ("apigateway:restapis/resources", "AWS::ApiGateway::Resource"),
+        ("apigateway:restapis/resources/methods", "AWS::ApiGateway::Method"),
+        ("apigateway:restapis/stages", "AWS::ApiGateway::Stage"),
+        ("apprunner:autoscalingconfiguration", "AWS::AppRunner::AutoScalingConfiguration"),
+        ("athena:datacatalog", "AWS::Athena::DataCatalog"),
+        ("athena:namedquery", "AWS::Athena::NamedQuery"),
+        ("athena:workgroup", "AWS::Athena::WorkGroup"),
+        ("autoscaling:autoScalingGroup", "AWS::AutoScaling::AutoScalingGroup"),
+        ("ce:anomalymonitor", "AWS::CE::AnomalyMonitor"),
+        ("ce:anomalysubscription", "AWS::CE::AnomalySubscription"),
+        ("cloudfront:origin-access-identity", "AWS::CloudFront::CloudFrontOriginAccessIdentity"),
+        ("cognito-identity:identitypool", "AWS::Cognito::IdentityPool"),
+        ("cognito-idp:userpool", "AWS::Cognito::UserPool"),
+        ("ec2:elastic-ip", "AWS::EC2::EIP"),
+        ("ec2:natgateway", "AWS::EC2::NatGateway"),
+        ("ec2:security-group-rule", "AWS::EC2::SecurityGroupEgress"),
+        ("ec2:security-group-rule", "AWS::EC2::SecurityGroupIngress"),
+        ("elasticache:cluster", "AWS::ElastiCache::CacheCluster"),
+        ("elasticache:parametergroup", "AWS::ElastiCache::ParameterGroup"),
+        ("elasticache:replicationgroup", "AWS::ElastiCache::ReplicationGroup"),
+        ("elasticache:subnetgroup", "AWS::ElastiCache::SubnetGroup"),
+        ("elasticloadbalancing:listener-rule/app", "AWS::ElasticLoadBalancingV2::ListenerRule"),
+        ("elasticloadbalancing:listener/app", "AWS::ElasticLoadBalancingV2::Listener"),
+        ("elasticloadbalancing:listener/net", "AWS::ElasticLoadBalancingV2::Listener"),
+        ("elasticloadbalancing:loadbalancer", "AWS::ElasticLoadBalancing::LoadBalancer"),
+        ("elasticloadbalancing:loadbalancer/app", "AWS::ElasticLoadBalancingV2::LoadBalancer"),
+        ("elasticloadbalancing:loadbalancer/gwy", "AWS::ElasticLoadBalancingV2::LoadBalancer"),
+        ("elasticloadbalancing:loadbalancer/net", "AWS::ElasticLoadBalancingV2::LoadBalancer"),
+        ("elasticloadbalancing:targetgroup", "AWS::ElasticLoadBalancingV2::TargetGroup"),
+        ("es:domain", "AWS::Elasticsearch::Domain"),
+        ("es:domain", "AWS::OpenSearchService::Domain"),
+        ("firehose:deliverystream", "AWS::KinesisFirehose::DeliveryStream"),
+        ("iam:policy", "AWS::IAM::ManagedPolicy"),
+        ("memorydb:parametergroup", "AWS::MemoryDB::ParameterGroup"),
+        ("rds:cluster", "AWS::RDS::DBCluster"),
+        ("rds:cluster-pg", "AWS::RDS::DBClusterParameterGroup"),
+        ("rds:db", "AWS::RDS::DBInstance"),
+        ("rds:og", "AWS::RDS::OptionGroup"),
+        ("rds:pg", "AWS::RDS::DBParameterGroup"),
+        ("rds:secgrp", "AWS::RDS::DBSecurityGroup"),
+        ("rds:subgrp", "AWS::RDS::DBSubnetGroup"),
+        ("route53:hostedzone", "AWS::Route53::HostedZone"),
+        ("s3:bucket", "AWS::S3::Bucket"),
+        ("wafv2:ipset", "AWS::WAFv2::IPSet"),
+        ("wafv2:webacl", "AWS::WAFv2::WebACL"),
+    ],
+)
+def test_resource_type_convergence(physical_type: str, cloudformation_type: str) -> None:
+    assert parse_physical_type(physical_type) == parse_logical_type(cloudformation_type)
