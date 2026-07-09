@@ -29,12 +29,12 @@ def parse_arn(arn: str) -> Arn:
     region = region or None
     account_id = account_id or None
 
-    resource_type, resource_id = parse_resource(service, resource)
+    resource_type, resource_id = parse_resource(resource)
 
     return Arn(partition, service, region, account_id, resource_type, resource_id)
 
 
-def parse_resource(service: str, resource: str) -> tuple[str | None, str]:
+def parse_resource(resource: str) -> tuple[str | None, str]:
     """
     Parses the resource part of an ARN into resource type and resource ID.
 
@@ -59,9 +59,5 @@ def parse_resource(service: str, resource: str) -> tuple[str | None, str]:
         separator = ":" if colon < slash else "/"
 
     resource_type, resource_id = resource.split(separator, 1)
-
-    # Special handling for SSM parameters
-    if service == "ssm" and resource_type == "parameter":
-        resource_id = "/" + resource_id
 
     return (resource_type, resource_id)

@@ -18,58 +18,41 @@ def is_system_resource(
     This does not include implicit resources, which are resources that exist because they are
     created automatically by another resource type, e.g., a default subnet in a VPC.
     """
-    match resource_type.service:
-        case "apprunner" if resource_type.kind == "auto-scaling-configuration":
+    match resource_type.service, resource_type.kind:
+        case "apprunner", "auto-scaling-configuration":
             return resource_id.startswith("DefaultConfiguration/")
-        case "athena":
-            match resource_type.kind:
-                case "data-catalog":
-                    return resource_id == "AwsDataCatalog"
-                case "workgroup":
-                    return resource_id == "primary"
-                case _:
-                    return False
-        case "backup" if resource_type.kind == "backup-vault":
+        case "athena", "data-catalog":
+            return resource_id == "AwsDataCatalog"
+        case "athena", "workgroup":
+            return resource_id == "primary"
+        case "backup", "backup-vault":
             return resource_id == "Default"
-        case "elasticache":
-            match resource_type.kind:
-                case "user":
-                    return resource_id == "default"
-                case _:
-                    return False
-        case "events" if resource_type.kind == "event-bus":
+        case "elasticache", "user":
             return resource_id == "default"
-        case "iam" if resource_type.kind == "role":
+        case "events", "event-bus":
+            return resource_id == "default"
+        case "iam", "role":
             return resource_id.startswith("aws-service-role/")
-        case "glue" if resource_type.kind == "database":
+        case "glue", "database":
             return resource_id == "default"
-        case "kms":
-            # Keys are the only KMS resource type returned by AWS Resource Explorer
+        case "kms", "key":
             progress(ProgressEvent(f"Checking KMS key {resource_id} in {region}"))
             return is_system_kms_key(session, region, resource_id)
-        case "memorydb":
-            match resource_type.kind:
-                case "acl":
-                    return resource_id == "open-access"
-                case "parameter-group":
-                    return resource_id.startswith("default.")
-                case "user":
-                    return resource_id == "default"
-                case _:
-                    return False
-        case "rds":
-            match resource_type.kind:
-                case "db-cluster-parameter-group" | "db-parameter-group":
-                    return resource_id.startswith("default.")
-                case "option-group":
-                    return resource_id.startswith("default:")
-                case "db-security-group" | "db-subnet-group":
-                    return resource_id == "default"
-                case _:
-                    return False
-        case "s3" if resource_type.kind == "storage-lens":
+        case "memorydb", "acl":
+            return resource_id == "open-access"
+        case "memorydb", "parameter-group":
+            return resource_id.startswith("default.")
+        case "memorydb", "user":
+            return resource_id == "default"
+        case "rds", "db-cluster-parameter-group" | "db-parameter-group":
+            return resource_id.startswith("default.")
+        case "rds", "option-group":
+            return resource_id.startswith("default:")
+        case "rds", "db-security-group" | "db-subnet-group":
+            return resource_id == "default"
+        case "s3", "storage-lens":
             return resource_id == "default-account-dashboard"
-        case "xray" if resource_type.kind == "sampling-rule":
+        case "xray", "sampling-rule":
             return resource_id == "Default"
         case _:
             return False
