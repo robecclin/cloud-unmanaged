@@ -29,6 +29,7 @@ TYPE_MAP: dict[tuple[str, str], tuple[str, str]] = {
     ("elasticloadbalancing", "targetgroup"): ("elasticloadbalancingv2", "target-group"),
     ("firehose", "deliverystream"): ("firehose", "delivery-stream"),
     ("iam", "policy"): ("iam", "managed-policy"),
+    ("lambda", "function/version"): ("lambda", "version"),
     ("memorydb", "parametergroup"): ("memorydb", "parameter-group"),
     ("rds", "cluster"): ("rds", "db-cluster"),
     ("rds", "cluster-pg"): ("rds", "db-cluster-parameter-group"),

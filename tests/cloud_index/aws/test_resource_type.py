@@ -47,6 +47,7 @@ def test_parse_resource_type(resource_type: str, expected: ResourceType) -> None
         ("elasticloadbalancing:targetgroup", ResourceType("aws", "elasticloadbalancingv2", "target-group")),
         ("firehose:deliverystream", ResourceType("aws", "firehose", "delivery-stream")),
         ("iam:policy", ResourceType("aws", "iam", "managed-policy")),
+        ("lambda:function/version", ResourceType("aws", "lambda", "version")),
         ("memorydb:parametergroup", ResourceType("aws", "memorydb", "parameter-group")),
         ("rds:cluster", ResourceType("aws", "rds", "db-cluster")),
         ("rds:cluster-pg", ResourceType("aws", "rds", "db-cluster-parameter-group")),

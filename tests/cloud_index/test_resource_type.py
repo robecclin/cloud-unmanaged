@@ -43,6 +43,7 @@ from cloud_index.cloudformation.resource_type import parse_resource_type as pars
         ("es:domain", "AWS::OpenSearchService::Domain"),
         ("firehose:deliverystream", "AWS::KinesisFirehose::DeliveryStream"),
         ("iam:policy", "AWS::IAM::ManagedPolicy"),
+        ("lambda:function/version", "AWS::Lambda::Version"),
         ("memorydb:parametergroup", "AWS::MemoryDB::ParameterGroup"),
         ("rds:cluster", "AWS::RDS::DBCluster"),
         ("rds:cluster-pg", "AWS::RDS::DBClusterParameterGroup"),
