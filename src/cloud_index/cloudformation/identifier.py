@@ -14,12 +14,17 @@ def parse_identifier(resource_type: ResourceType, physical_id: str) -> str | Non
     except ValueError:
         pass
 
-    match resource_type.service:
-        case "ec2" if resource_type.kind == "security-group-rule" and not physical_id.startswith("sgr-"):
+    match resource_type.service, resource_type.kind:
+        case "ec2", "security-group-rule" if not physical_id.startswith("sgr-"):
             # Older templates report a pseudo id that does not identify the rule
             return None
-        case "sqs" if resource_type.kind == "queue":
+        case "sqs", "queue":
             # The physical id is the queue URL
             return physical_id.rsplit("/", 1)[-1]
+        case "ssm", "parameter":
+            # Normalize to match created resource, which retains a slash prefix
+            # only if it is hierarchical
+            name = physical_id.removeprefix("/")
+            return "/" + name if "/" in name else name
         case _:
             return physical_id

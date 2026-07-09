@@ -43,11 +43,11 @@ from cloud_index.aws.arn import parse_arn
         ),
         (
             "arn:aws:ssm:us-east-1:123456789012:parameter/parent/child",
-            ("aws", "ssm", "us-east-1", "123456789012", "parameter", "/parent/child"),
+            ("aws", "ssm", "us-east-1", "123456789012", "parameter", "parent/child"),
         ),
         (
             "arn:aws:ssm:us-east-1:123456789012:parameter/parent/child:1",
-            ("aws", "ssm", "us-east-1", "123456789012", "parameter", "/parent/child:1"),
+            ("aws", "ssm", "us-east-1", "123456789012", "parameter", "parent/child:1"),
         ),
         (
             "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/my-function:*",

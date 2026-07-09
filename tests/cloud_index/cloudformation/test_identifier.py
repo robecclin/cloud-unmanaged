@@ -14,6 +14,9 @@ from cloud_index.resource import ResourceType
         (ResourceType("aws", "ec2", "vpc"), "vpc-0e19a7a49b325abc2", "vpc-0e19a7a49b325abc2"),
         (ResourceType("aws", "sns", "topic"), "arn:aws:sns:us-east-1:123456789012:MyTopic", "MyTopic"),
         (ResourceType("aws", "sqs", "queue"), "https://sqs.us-east-1.amazonaws.com/123456789012/MyQueue", "MyQueue"),
+        (ResourceType("aws", "ssm", "parameter"), "my-param", "my-param"),
+        (ResourceType("aws", "ssm", "parameter"), "/my-param", "my-param"),
+        (ResourceType("aws", "ssm", "parameter"), "/parent/child", "/parent/child"),
     ],
 )
 def test_parse_identifier(resource_type: ResourceType, physical_id: str, expected: str | None) -> None:
