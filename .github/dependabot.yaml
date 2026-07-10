@@ -5,10 +5,12 @@ updates:
     directory: /
     schedule:
       interval: daily
+      time: 06:00
   - package-ecosystem: uv
     directory: /
     schedule:
       interval: daily
+      time: 06:00
     groups:
       boto3:
         patterns:
