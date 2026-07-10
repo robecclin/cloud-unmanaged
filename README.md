@@ -39,3 +39,9 @@ Display the indexed resources:
 ```sh
 uv run cloud-unmanaged show
 ```
+
+Display resources defined by IaC that appear to be missing in the cloud:
+
+```sh
+uv run cloud-unmanaged show-missing
+```

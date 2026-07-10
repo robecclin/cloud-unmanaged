@@ -19,6 +19,7 @@ def test_main_no_subcommand(run_cli: RunCli) -> None:
     assert "Usage:" in result.stdout
     assert "index" in result.stdout
     assert "show" in result.stdout
+    assert "show-missing" in result.stdout
     assert result.stderr == ""
 
 
@@ -34,4 +35,5 @@ def test_main_help(run_cli: RunCli) -> None:
     assert result.exit_code == 0
     assert "index" in result.stdout
     assert "show" in result.stdout
+    assert "show-missing" in result.stdout
     assert result.stderr == ""
