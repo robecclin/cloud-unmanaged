@@ -1,15 +1,8 @@
 from unittest.mock import patch
 
 from cloud_index.resource import LogicalResource, PhysicalResource, ResourceType
-from cloud_unmanaged.db import DatabaseError, transaction
-from cloud_unmanaged.repository import save
-from tests.cloud_unmanaged.conftest import RunCli
-
-
-def store(*resources: PhysicalResource | LogicalResource) -> None:
-    with transaction() as connection:
-        for resource in resources:
-            save(connection, resource)
+from cloud_unmanaged.db import DatabaseError
+from tests.cloud_unmanaged.conftest import RunCli, store
 
 
 def test_show(run_cli: RunCli) -> None:

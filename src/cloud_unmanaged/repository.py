@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+
 from sqlalchemy import delete, exists, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.engine import Connection
@@ -42,7 +44,7 @@ def load_physical(
     include_system: bool = False,
     region: str | None = None,
     managed: bool | None = None,
-) -> list[PhysicalResource]:
+) -> Iterator[PhysicalResource]:
     stmt = select(physical_resource_table).order_by(
         physical_resource_table.c.account,
         physical_resource_table.c.region,
@@ -67,13 +69,49 @@ def load_physical(
         stmt = stmt.where(match_exists if managed else ~match_exists)
 
     rows = connection.execute(stmt).mappings()
-    return [
-        PhysicalResource(
+    for row in rows:
+        yield PhysicalResource(
             account=row.account,
             region=row.region,
             type=ResourceType(row.cloud, row.service, row.type),
             identifier=row.identifier,
             system=row.system,
         )
-        for row in rows
-    ]
+
+
+def load_missing_logical(connection: Connection, region: str | None = None) -> Iterator[LogicalResource]:
+    match_exists = exists().where(
+        physical_resource_table.c.account == logical_resource_table.c.account,
+        physical_resource_table.c.region == logical_resource_table.c.region,
+        physical_resource_table.c.cloud == logical_resource_table.c.cloud,
+        physical_resource_table.c.service == logical_resource_table.c.service,
+        physical_resource_table.c.type == logical_resource_table.c.type,
+        physical_resource_table.c.identifier == logical_resource_table.c.identifier,
+    )
+    stmt = (
+        select(logical_resource_table)
+        .where(~match_exists)
+        .order_by(
+            logical_resource_table.c.account,
+            logical_resource_table.c.region,
+            logical_resource_table.c.cloud,
+            logical_resource_table.c.service,
+            logical_resource_table.c.type,
+            logical_resource_table.c.identifier,
+            logical_resource_table.c.locator,
+            logical_resource_table.c.name,
+        )
+    )
+    if region:
+        stmt = stmt.where(logical_resource_table.c.region == region)
+
+    rows = connection.execute(stmt).mappings()
+    for row in rows:
+        yield LogicalResource(
+            account=row.account,
+            region=row.region,
+            type=ResourceType(row.cloud, row.service, row.type),
+            identifier=row.identifier,
+            locator=row.locator,
+            name=row.name,
+        )
