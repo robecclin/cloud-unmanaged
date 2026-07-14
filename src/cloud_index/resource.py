@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class ResourceType:
     cloud: str
     service: str
@@ -11,7 +11,7 @@ class ResourceType:
         return f"{self.cloud}:{self.service}:{self.kind}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Resource:
     type: ResourceType
     account: str
@@ -19,12 +19,12 @@ class Resource:
     identifier: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class PhysicalResource(Resource):
     system: bool
 
 
-@dataclass
+@dataclass(frozen=True)
 class LogicalResource(Resource):
     locator: str
     name: str

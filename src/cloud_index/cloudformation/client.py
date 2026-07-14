@@ -40,7 +40,7 @@ ACTIVE_STACK_STATUSES: list[StackStatusType] = sorted(set(get_args(StackStatusTy
 ACTIVE_RESOURCE_STATUSES: set[ResourceStatusType] = set(get_args(ResourceStatusType)) - INACTIVE_RESOURCE_STATUSES
 
 
-@dataclass
+@dataclass(frozen=True)
 class StackResource:
     logical_id: str
     physical_id: str
