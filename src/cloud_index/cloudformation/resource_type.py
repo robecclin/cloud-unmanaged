@@ -2,6 +2,7 @@ from botocore import xform_name
 
 from cloud_index.resource import ResourceType
 
+# WIP: Canonical type mappings are intentionally incomplete and will expand as resource support matures.
 TYPE_MAP: dict[tuple[str, str], tuple[str, str]] = {
     ("athena", "work-group"): ("athena", "workgroup"),
     ("cloudfront", "cloud-front-origin-access-identity"): ("cloudfront", "origin-access-identity"),
@@ -12,6 +13,7 @@ TYPE_MAP: dict[tuple[str, str], tuple[str, str]] = {
     ("ec2", "security-group-ingress"): ("ec2", "security-group-rule"),
 }
 
+# WIP: Canonical service mappings are intentionally incomplete and will expand as resource support matures.
 SERVICE_MAP: dict[str, str] = {
     "elasticsearch": "opensearchservice",
     "kinesisfirehose": "firehose",

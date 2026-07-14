@@ -2,8 +2,9 @@ from collections.abc import Generator
 
 from cloud_index.aws.arn import parse_arn
 from cloud_index.aws.client import create_session
+from cloud_index.aws.indexer import resolve_region
 from cloud_index.progress import ProgressEvent, ProgressReporter
-from cloud_index.resource import LogicalResource, ResourceType
+from cloud_index.resource import LogicalResource
 
 from .client import get_enabled_regions, get_stack_resources, get_stacks
 from .identifier import parse_identifier
@@ -38,11 +39,3 @@ def index(progress: ProgressReporter = lambda _: None) -> Generator[LogicalResou
                     locator=stack_id,
                     name=stack_resource.logical_id,
                 )
-
-
-def resolve_region(resource_type: ResourceType, region: str) -> str:
-    if resource_type.service in {"ce", "cloudfront", "iam", "route53"}:
-        return "aws-global"
-    if resource_type.service == "cloudwatch" and resource_type.kind == "dashboard":
-        return "aws-global"
-    return region

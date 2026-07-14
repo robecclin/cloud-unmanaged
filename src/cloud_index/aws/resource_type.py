@@ -1,5 +1,6 @@
 from cloud_index.resource import ResourceType
 
+# WIP: Canonical type mappings are intentionally incomplete and will expand as resource support matures.
 TYPE_MAP: dict[tuple[str, str], tuple[str, str]] = {
     ("apigateway", "restapis"): ("apigateway", "rest-api"),
     ("apigateway", "restapis/deployments"): ("apigateway", "deployment"),
@@ -44,6 +45,7 @@ TYPE_MAP: dict[tuple[str, str], tuple[str, str]] = {
     ("wafv2", "webacl"): ("wafv2", "web-acl"),
 }
 
+# WIP: Canonical service mappings are intentionally incomplete and will expand as resource support matures.
 SERVICE_MAP: dict[str, str] = {
     "acm": "certificatemanager",
     "es": "opensearchservice",
