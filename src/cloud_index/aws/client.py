@@ -16,7 +16,7 @@ DEFAULT_REGION = "us-east-1"
 type KeyManager = Literal["AWS", "CUSTOMER"]
 
 
-@dataclass
+@dataclass(frozen=True)
 class AwsResource:
     arn: str
     account_id: str
@@ -24,7 +24,7 @@ class AwsResource:
     type: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class KmsKey:
     key_manager: KeyManager
 
