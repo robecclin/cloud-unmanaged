@@ -85,7 +85,7 @@ def test_index_system_resources(session: Session) -> None:
     assert actual[0] == PhysicalResource(
         type=ResourceType("aws", "iam", "role"),
         account="123456789012",
-        region="us-east-1",
+        region="aws-global",
         identifier="aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS",
         system=True,
     )

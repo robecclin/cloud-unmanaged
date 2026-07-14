@@ -1,13 +1,15 @@
 from collections.abc import Generator
 
 from cloud_index.progress import ProgressEvent, ProgressReporter
-from cloud_index.resource import PhysicalResource
+from cloud_index.resource import PhysicalResource, ResourceType
 
 from .arn import parse_arn
 from .client import create_session, get_aggregator_region, get_resources
 from .identifier import parse_identifier
 from .resource_type import parse_resource_type
 from .system_resource import is_system_resource
+
+GLOBAL_REGION = "aws-global"
 
 
 def index(progress: ProgressReporter = lambda _: None) -> Generator[PhysicalResource]:
@@ -18,7 +20,7 @@ def index(progress: ProgressReporter = lambda _: None) -> Generator[PhysicalReso
     for aws_resource in get_resources(session, aggregator_region):
         resource_type = parse_resource_type(aws_resource.type)
         identifier = parse_identifier(resource_type, parse_arn(aws_resource.arn).resource_id)
-        region = resolve_region(aws_resource.region)
+        region = resolve_region(resource_type, aws_resource.region)
         resource = PhysicalResource(
             account=aws_resource.account_id,
             region=region,
@@ -30,7 +32,11 @@ def index(progress: ProgressReporter = lambda _: None) -> Generator[PhysicalReso
         yield resource
 
 
-def resolve_region(region: str) -> str:
+def resolve_region(resource_type: ResourceType, region: str) -> str:
     if region == "global":
-        return "aws-global"
+        return GLOBAL_REGION
+    if resource_type.service in {"ce", "cloudfront", "iam", "route53"}:
+        return GLOBAL_REGION
+    if resource_type.service == "cloudwatch" and resource_type.kind == "dashboard":
+        return GLOBAL_REGION
     return region
