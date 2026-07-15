@@ -44,7 +44,9 @@ class DatabaseError(Exception):
 def get_db_path() -> Path:
     data_dir = (Path(environ.get("XDG_DATA_HOME") or Path.home() / ".local/share") / "cloud-unmanaged").expanduser()
     data_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
-    return data_dir / "database.sqlite"
+    db_path = data_dir / "database.sqlite"
+    db_path.touch(mode=0o600, exist_ok=True)
+    return db_path
 
 
 def get_db_dsn() -> str:

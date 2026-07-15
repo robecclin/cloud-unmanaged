@@ -16,6 +16,8 @@ def test_get_db_path_xdg_data_home(tmp_path: Path) -> None:
     assert actual == tmp_path / "cloud-unmanaged/database.sqlite"
     assert actual.parent.is_dir()
     assert actual.parent.stat().st_mode & 0o777 == 0o700
+    assert actual.is_file()
+    assert actual.stat().st_mode & 0o777 == 0o600
 
 
 def test_get_db_path_expands_user(tmp_path: Path) -> None:
