@@ -3,15 +3,24 @@ from contextlib import contextmanager
 from os import environ
 from pathlib import Path
 
-from sqlalchemy import Boolean, Column, MetaData, Table, Text, UniqueConstraint, create_engine
+from sqlalchemy import UUID, Boolean, Column, MetaData, Table, Text, UniqueConstraint, create_engine
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import SQLAlchemyError
 
 metadata = MetaData()
 
+index_run_table = Table(
+    "index_run",
+    metadata,
+    Column("id", UUID(), nullable=False, primary_key=True),
+    Column("started_at", Text(), nullable=False),
+    Column("ended_at", Text(), nullable=False),
+)
+
 physical_resource_table = Table(
     "physical_resource",
     metadata,
+    Column("index_run_id", UUID(), nullable=False),
     Column("account", Text(), nullable=False),
     Column("region", Text(), nullable=False),
     Column("cloud", Text(), nullable=False),
@@ -19,12 +28,13 @@ physical_resource_table = Table(
     Column("type", Text(), nullable=False),
     Column("identifier", Text(), nullable=False),
     Column("system", Boolean(), nullable=False),
-    UniqueConstraint("account", "region", "cloud", "service", "type", "identifier"),
+    UniqueConstraint("index_run_id", "account", "region", "cloud", "service", "type", "identifier"),
 )
 
 logical_resource_table = Table(
     "logical_resource",
     metadata,
+    Column("index_run_id", UUID(), nullable=False),
     Column("account", Text(), nullable=False),
     Column("region", Text(), nullable=False),
     Column("cloud", Text(), nullable=False),
@@ -33,7 +43,7 @@ logical_resource_table = Table(
     Column("identifier", Text(), nullable=False),
     Column("locator", Text(), nullable=False),
     Column("name", Text(), nullable=False),
-    UniqueConstraint("locator", "name"),
+    UniqueConstraint("index_run_id", "locator", "name"),
 )
 
 

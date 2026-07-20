@@ -9,7 +9,7 @@ from cloud_index.progress import ProgressEvent
 from cloud_index.resource import PhysicalResource
 from cloud_unmanaged.app import app
 from cloud_unmanaged.db import DatabaseError, transaction
-from cloud_unmanaged.repository import clear, save
+from cloud_unmanaged.repository import end_index_run, save, start_index_run
 
 console = Console()
 err_console = Console(stderr=True, highlight=False)
@@ -31,7 +31,7 @@ def index() -> None:
                 disable=not err_console.is_terminal,
             ) as progress,
         ):
-            clear(connection)
+            index_run_id = start_index_run(connection)
             task = progress.add_task("Indexing AWS resources", count="(Found 0)")
             found = 0
 
@@ -42,11 +42,12 @@ def index() -> None:
                 for resource in indexer(update_progress):
                     found += 1
                     progress.update(task, count=f"(Found {found})")
-                    if save(connection, resource):
+                    if save(connection, index_run_id, resource):
                         if isinstance(resource, PhysicalResource):
                             physical_count += 1
                         else:
                             logical_count += 1
+            end_index_run(connection, index_run_id)
     except (CloudIndexError, DatabaseError) as error:
         err_console.print(str(error), style="red", markup=False)
         raise Exit(1) from error

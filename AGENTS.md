@@ -34,7 +34,9 @@
   - Library tests covering exported interfaces
   - Command tests with mocked library interfaces
   - Unit tests of discrete logic
-- Prefer integration tests through clear, non-contrived pathways; use lower-level tests only when necessary and avoid redundant coverage
+- Test behavior at the highest stable boundary that exposes the contract; inspect lower-level state only when it is itself part of the contract or cannot be observed through a supported workflow
+- Prefer realistic, supported states and failure modes; test synthetic or abnormal conditions only when handling them is an explicit requirement
+- Avoid redundant coverage across layers
 - Name tests for the scenario being exercised, not the expected result; name the primary expected path `test_<subject>`
 - Mock only when necessary to isolate external systems or architectural boundaries; otherwise use real objects
 - Do not use pytest's `monkeypatch` fixture
