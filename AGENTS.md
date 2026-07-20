@@ -30,11 +30,12 @@
 
 - Complete branch test coverage is enforced
 - Tests mirror the package module structure under `tests/`
-- Required test types:
+- Test types used where applicable:
   - Library tests covering exported interfaces
   - Command tests with mocked library interfaces
   - Unit tests of discrete logic
-- Test behavior at the highest stable boundary that exposes the contract; inspect lower-level state only when it is itself part of the contract or cannot be observed through a supported workflow
+- Test behavior at the highest stable boundary that exposes the contract; test lower-level state only when callers depend on it through a supported interface, not merely because it cannot be observed at a higher layer
+- Do not add tests solely for declarative configuration or branchless implementation changes already exercised by higher-level tests
 - Prefer realistic, supported states and failure modes; test synthetic or abnormal conditions only when handling them is an explicit requirement
 - Avoid redundant coverage across layers
 - Name tests for the scenario being exercised, not the expected result; name the primary expected path `test_<subject>`

@@ -20,7 +20,7 @@ def start_index_run(connection: Connection) -> UUID:
         insert(index_run_table).values(
             id=index_run_id,
             started_at=current_timestamp(),
-            ended_at="",
+            ended_at=None,
         )
     )
     return index_run_id
@@ -35,7 +35,7 @@ def end_index_run(connection: Connection, index_run_id: UUID) -> None:
 def get_latest_index_run_id(connection: Connection) -> UUID | None:
     stmt = (
         select(index_run_table.c.id)
-        .where(index_run_table.c.ended_at != "")
+        .where(index_run_table.c.ended_at.is_not(None))
         .order_by(index_run_table.c.ended_at.desc(), index_run_table.c.id.desc())
         .limit(1)
     )
