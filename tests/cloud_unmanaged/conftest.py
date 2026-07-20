@@ -3,6 +3,7 @@ from os import environ
 from pathlib import Path
 from typing import Protocol
 from unittest.mock import patch
+from uuid import UUID
 
 import pytest
 from typer.testing import CliRunner, Result
@@ -10,17 +11,20 @@ from typer.testing import CliRunner, Result
 from cloud_index.resource import LogicalResource, PhysicalResource
 from cloud_unmanaged.db import transaction
 from cloud_unmanaged.main import app
-from cloud_unmanaged.repository import save
+from cloud_unmanaged.repository import end_index_run, save, start_index_run
 
 
 class RunCli(Protocol):
     def __call__(self, *args: str) -> Result: ...
 
 
-def store(*resources: PhysicalResource | LogicalResource) -> None:
+def store(*resources: PhysicalResource | LogicalResource) -> UUID:
     with transaction() as connection:
+        index_run_id = start_index_run(connection)
         for resource in resources:
-            save(connection, resource)
+            save(connection, index_run_id, resource)
+        end_index_run(connection, index_run_id)
+    return index_run_id
 
 
 @pytest.fixture

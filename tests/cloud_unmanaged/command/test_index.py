@@ -9,7 +9,12 @@ from sqlalchemy import create_engine, select
 from cloud_index.aws import NoAggregatorIndexFoundError
 from cloud_index.progress import ProgressEvent, ProgressReporter
 from cloud_index.resource import LogicalResource, PhysicalResource, ResourceType
-from cloud_unmanaged.db import DatabaseError, get_db_dsn, logical_resource_table, physical_resource_table
+from cloud_unmanaged.db import (
+    DatabaseError,
+    get_db_dsn,
+    logical_resource_table,
+    physical_resource_table,
+)
 from tests.cloud_unmanaged.conftest import RunCli
 
 
@@ -103,6 +108,11 @@ def test_index_no_resources(run_cli: RunCli) -> None:
     assert saved_physical_resource_ids() == []
     assert saved_logical_resource_names() == []
 
+    result = run_cli("show")
+    assert result.exit_code == 0
+    assert "No resources found" in result.stdout
+    assert "No index runs found" not in result.stdout
+
 
 def test_index_existing_resources(run_cli: RunCli) -> None:
     with (
@@ -124,8 +134,11 @@ def test_index_existing_resources(run_cli: RunCli) -> None:
         result = run_cli("index")
 
     assert result.exit_code == 0
-    assert saved_physical_resource_ids() == ["current-bucket"]
-    assert saved_logical_resource_names() == ["CurrentBucket"]
+
+    result = run_cli("show")
+    assert result.exit_code == 0
+    assert "current-bucket" in result.stdout
+    assert "previous-bucket" not in result.stdout
 
 
 def test_index_duplicate_resources(run_cli: RunCli) -> None:
@@ -144,6 +157,20 @@ def test_index_duplicate_resources(run_cli: RunCli) -> None:
     assert Text.from_ansi(result.stdout).plain == "Indexed 2 resources (1 physical, 1 logical)\n"
     assert saved_physical_resource_ids() == ["my-bucket"]
     assert saved_logical_resource_names() == ["MyBucket"]
+
+
+def test_index_duplicate_resources_from_previous_run(run_cli: RunCli) -> None:
+    resource = physical_resource("my-bucket")
+    logical = logical_resource("MyBucket")
+    for _ in range(2):
+        with (
+            patch("cloud_unmanaged.command.index.index_aws", return_value=iter([resource])),
+            patch("cloud_unmanaged.command.index.index_cloudformation", return_value=iter([logical])),
+        ):
+            result = run_cli("index")
+
+        assert result.exit_code == 0
+        assert Text.from_ansi(result.stdout).plain == "Indexed 2 resources (1 physical, 1 logical)\n"
 
 
 def test_index_error_after_resource(run_cli: RunCli) -> None:
@@ -167,8 +194,11 @@ def test_index_error_after_resource(run_cli: RunCli) -> None:
         result = run_cli("index")
 
     assert result.exit_code == 1
-    assert saved_physical_resource_ids() == ["previous-bucket"]
-    assert saved_logical_resource_names() == ["PreviousBucket"]
+
+    result = run_cli("show")
+    assert result.exit_code == 0
+    assert "previous-bucket" in result.stdout
+    assert "new-bucket" not in result.stdout
 
 
 def test_index_database_error(run_cli: RunCli) -> None:

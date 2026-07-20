@@ -56,6 +56,45 @@ def test_show_missing(run_cli: RunCli) -> None:
     assert system_resource.identifier not in result.stdout
 
 
+def test_show_missing_no_index_runs(run_cli: RunCli) -> None:
+    result = run_cli("show-missing")
+
+    assert result.exit_code == 0
+    assert "No index runs found" in result.stdout
+
+
+def test_show_missing_latest_index_run(run_cli: RunCli) -> None:
+    previous_resource = logical_resource("previous")
+    current_resource = logical_resource("current")
+    store(previous_resource)
+    store(current_resource)
+
+    result = run_cli("show-missing")
+
+    assert result.exit_code == 0
+    assert current_resource.identifier in result.stdout
+    assert previous_resource.identifier not in result.stdout
+
+
+def test_show_missing_physical_match_from_previous_index_run(run_cli: RunCli) -> None:
+    resource = logical_resource("my-bucket")
+    store(
+        PhysicalResource(
+            account=resource.account,
+            region=resource.region,
+            type=resource.type,
+            identifier=resource.identifier,
+            system=False,
+        )
+    )
+    store(resource)
+
+    result = run_cli("show-missing")
+
+    assert result.exit_code == 0
+    assert resource.identifier in result.stdout
+
+
 def test_show_missing_region(run_cli: RunCli) -> None:
     us_east_resource = logical_resource("east", region="us-east-1")
     us_west_resource = logical_resource("west", region="us-west-2")
