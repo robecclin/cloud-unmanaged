@@ -14,7 +14,7 @@ index_run_table = Table(
     metadata,
     Column("id", UUID(), nullable=False, primary_key=True),
     Column("started_at", Text(), nullable=False),
-    Column("ended_at", Text(), nullable=False),
+    Column("ended_at", Text(), nullable=True),
 )
 
 physical_resource_table = Table(
