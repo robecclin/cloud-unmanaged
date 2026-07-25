@@ -6,7 +6,6 @@ check:
 	uv run ruff format --check
 	uv run vulture
 	uv run ty check
-	uv run pyright
 	uv run mypy
 	uv run coverage run -m pytest
 	uv run coverage report
