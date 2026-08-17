@@ -16,3 +16,7 @@ updates:
         patterns:
           - boto3
           - types-boto3-lite*
+      uv:
+        patterns:
+          - uv
+          - uv-build
