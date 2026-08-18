@@ -22,7 +22,7 @@ cloud-unmanaged = "cloud_unmanaged.main:app"
 
 [build-system]
 build-backend = "uv_build"
-requires = ["uv_build>=0.12.4,<0.13"]
+requires = ["uv_build>=0.12.5,<0.13"]
 
 [dependency-groups]
 dev = [
@@ -35,7 +35,7 @@ dev = [
     "yamllint>=1.38.0",
 ]
 ci = [
-    "uv>=0.12.4",
+    "uv>=0.12.5",
 ]
 
 [tool.coverage.report]
