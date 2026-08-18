@@ -4,8 +4,8 @@ from typer import Exit, Option
 
 from cloud_index.aws import get_available_regions
 from cloud_unmanaged.app import app
-from cloud_unmanaged.db import DatabaseError, transaction
-from cloud_unmanaged.repository import get_latest_index_run_id, load_missing_logical
+from cloud_unmanaged.db import DatabaseError, connect
+from cloud_unmanaged.repository import load_missing_logical
 
 console = Console()
 err_console = Console(stderr=True, highlight=False)
@@ -28,13 +28,8 @@ def show_missing(
     table.add_column("Name")
 
     try:
-        with transaction() as connection:
-            index_run_id = get_latest_index_run_id(connection)
-            if index_run_id is None:
-                console.print("No index runs found")
-                raise Exit()
-
-            for resource in load_missing_logical(connection, index_run_id, region=region):
+        with connect() as connection:
+            for resource in load_missing_logical(connection, region=region):
                 table.add_row(
                     resource.account,
                     resource.region,

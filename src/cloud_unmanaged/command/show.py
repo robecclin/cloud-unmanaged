@@ -4,8 +4,8 @@ from typer import Exit, Option
 
 from cloud_index.aws import get_available_regions
 from cloud_unmanaged.app import app
-from cloud_unmanaged.db import DatabaseError, transaction
-from cloud_unmanaged.repository import get_latest_index_run_id, load_physical
+from cloud_unmanaged.db import DatabaseError, connect
+from cloud_unmanaged.repository import load_physical
 
 console = Console()
 err_console = Console(stderr=True, highlight=False)
@@ -33,16 +33,10 @@ def show(
     table.add_column("ID")
 
     try:
-        with transaction() as connection:
-            index_run_id = get_latest_index_run_id(connection)
-            if index_run_id is None:
-                console.print("No index runs found")
-                raise Exit()
-
+        with connect() as connection:
             managed_filter = True if managed else False if unmanaged else None
             for resource in load_physical(
                 connection,
-                index_run_id,
                 include_system=include_system,
                 region=region,
                 managed=managed_filter,

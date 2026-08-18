@@ -1,4 +1,3 @@
-from collections.abc import Iterator
 from io import StringIO
 from unittest.mock import patch
 
@@ -108,11 +107,6 @@ def test_index_no_resources(run_cli: RunCli) -> None:
     assert saved_physical_resource_ids() == []
     assert saved_logical_resource_names() == []
 
-    result = run_cli("show")
-    assert result.exit_code == 0
-    assert "No resources found" in result.stdout
-    assert "No index runs found" not in result.stdout
-
 
 def test_index_existing_resources(run_cli: RunCli) -> None:
     with (
@@ -138,72 +132,69 @@ def test_index_existing_resources(run_cli: RunCli) -> None:
     result = run_cli("show")
     assert result.exit_code == 0
     assert "current-bucket" in result.stdout
-    assert "previous-bucket" not in result.stdout
+    assert "previous-bucket" in result.stdout
 
 
-def test_index_duplicate_resources(run_cli: RunCli) -> None:
-    resource = physical_resource("my-bucket")
-    duplicate_logical_resource = logical_resource("MyBucket")
+def test_index_updated_resources(run_cli: RunCli) -> None:
+    original_physical = physical_resource("my-bucket")
+    original_logical = logical_resource("MyBucket")
     with (
-        patch("cloud_unmanaged.command.index.index_aws", return_value=iter([resource, resource])),
-        patch(
-            "cloud_unmanaged.command.index.index_cloudformation",
-            return_value=iter([duplicate_logical_resource, duplicate_logical_resource]),
-        ),
+        patch("cloud_unmanaged.repository.current_timestamp", return_value="2026-08-16 12:00:00.001"),
+        patch("cloud_unmanaged.command.index.index_aws", return_value=iter([original_physical])),
+        patch("cloud_unmanaged.command.index.index_cloudformation", return_value=iter([original_logical])),
+    ):
+        result = run_cli("index")
+
+    assert result.exit_code == 0
+
+    updated_physical = PhysicalResource(
+        account=original_physical.account,
+        region=original_physical.region,
+        type=original_physical.type,
+        identifier=original_physical.identifier,
+        system=True,
+    )
+    updated_logical = LogicalResource(
+        account="210987654321",
+        region="us-west-2",
+        type=ResourceType("aws", "sqs", "queue"),
+        identifier="updated-queue",
+        locator=original_logical.locator,
+        name=original_logical.name,
+    )
+    with (
+        patch("cloud_unmanaged.repository.current_timestamp", return_value="2026-08-16 12:00:00.002"),
+        patch("cloud_unmanaged.command.index.index_aws", return_value=iter([updated_physical])),
+        patch("cloud_unmanaged.command.index.index_cloudformation", return_value=iter([updated_logical])),
     ):
         result = run_cli("index")
 
     assert result.exit_code == 0
     assert Text.from_ansi(result.stdout).plain == "Indexed 2 resources (1 physical, 1 logical)\n"
-    assert saved_physical_resource_ids() == ["my-bucket"]
-    assert saved_logical_resource_names() == ["MyBucket"]
+    engine = create_engine(get_db_dsn())
+    try:
+        with engine.connect() as connection:
+            physical_row = connection.execute(select(physical_resource_table)).mappings().one()
+            logical_row = connection.execute(select(logical_resource_table)).mappings().one()
+    finally:
+        engine.dispose()
 
-
-def test_index_duplicate_resources_from_previous_run(run_cli: RunCli) -> None:
-    resource = physical_resource("my-bucket")
-    logical = logical_resource("MyBucket")
-    for _ in range(2):
-        with (
-            patch("cloud_unmanaged.command.index.index_aws", return_value=iter([resource])),
-            patch("cloud_unmanaged.command.index.index_cloudformation", return_value=iter([logical])),
-        ):
-            result = run_cli("index")
-
-        assert result.exit_code == 0
-        assert Text.from_ansi(result.stdout).plain == "Indexed 2 resources (1 physical, 1 logical)\n"
-
-
-def test_index_error_after_resource(run_cli: RunCli) -> None:
-    with (
-        patch("cloud_unmanaged.command.index.index_aws", return_value=iter([physical_resource("previous-bucket")])),
-        patch(
-            "cloud_unmanaged.command.index.index_cloudformation",
-            return_value=iter([logical_resource("PreviousBucket")]),
-        ),
-    ):
-        run_cli("index")
-
-    def fail_after_resource(progress: ProgressReporter) -> Iterator[LogicalResource]:
-        yield logical_resource("NewBucket")
-        raise NoAggregatorIndexFoundError()
-
-    with (
-        patch("cloud_unmanaged.command.index.index_aws", return_value=iter([physical_resource("new-bucket")])),
-        patch("cloud_unmanaged.command.index.index_cloudformation", side_effect=fail_after_resource),
-    ):
-        result = run_cli("index")
-
-    assert result.exit_code == 1
-
-    result = run_cli("show")
-    assert result.exit_code == 0
-    assert "previous-bucket" in result.stdout
-    assert "new-bucket" not in result.stdout
+    assert physical_row.system is True
+    assert physical_row.last_indexed_at == "2026-08-16 12:00:00.002"
+    assert logical_row.account == updated_logical.account
+    assert logical_row.region == updated_logical.region
+    assert (logical_row.cloud, logical_row.service, logical_row.type) == (
+        updated_logical.type.cloud,
+        updated_logical.type.service,
+        updated_logical.type.kind,
+    )
+    assert logical_row.identifier == updated_logical.identifier
+    assert logical_row.last_indexed_at == "2026-08-16 12:00:00.002"
 
 
 def test_index_database_error(run_cli: RunCli) -> None:
     with patch(
-        "cloud_unmanaged.command.index.transaction",
+        "cloud_unmanaged.command.index.connect",
         side_effect=DatabaseError("Unable to access resource database"),
     ):
         result = run_cli("index")
