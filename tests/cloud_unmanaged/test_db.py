@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
-from cloud_unmanaged.db import DatabaseError, get_db_dsn, get_db_path, init_db, transaction
+from cloud_unmanaged.db import DatabaseError, connect, get_db_dsn, get_db_path, init_db
 
 
 def test_get_db_path_xdg_data_home(tmp_path: Path) -> None:
@@ -46,26 +46,26 @@ def test_init_db(tmp_path: Path) -> None:
         engine = create_engine(get_db_dsn())
         try:
             init_db(engine)
-            assert inspect(engine).get_table_names() == ["index_run", "logical_resource", "physical_resource"]
+            assert inspect(engine).get_table_names() == ["logical_resource", "physical_resource"]
         finally:
             engine.dispose()
 
 
-def test_transaction_database_error() -> None:
+def test_connect_database_error() -> None:
     engine = create_engine("sqlite://")
     with (
         patch("cloud_unmanaged.db.create_engine", return_value=engine),
         patch("cloud_unmanaged.db.init_db", side_effect=SQLAlchemyError("write failed")),
         pytest.raises(DatabaseError, match="Unable to access resource database: write failed"),
-        transaction(),
+        connect(),
     ):
         pass
 
 
-def test_transaction_database_path_error() -> None:
+def test_connect_database_path_error() -> None:
     with (
         patch("cloud_unmanaged.db.create_engine", side_effect=OSError("path failed")),
         pytest.raises(DatabaseError, match="Unable to access resource database: path failed"),
-        transaction(),
+        connect(),
     ):
         pass

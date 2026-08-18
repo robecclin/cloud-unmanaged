@@ -30,39 +30,6 @@ def test_show(run_cli: RunCli) -> None:
     assert str(non_system_resource.type) in result.stdout
 
 
-def test_show_no_index_runs(run_cli: RunCli) -> None:
-    result = run_cli("show")
-
-    assert result.exit_code == 0
-    assert "No index runs found" in result.stdout
-
-
-def test_show_logical_match_from_previous_index_run(run_cli: RunCli) -> None:
-    resource = PhysicalResource(
-        account="123456789012",
-        region="us-east-1",
-        type=ResourceType("aws", "s3", "bucket"),
-        identifier="my-bucket",
-        system=False,
-    )
-    store(
-        LogicalResource(
-            account=resource.account,
-            region=resource.region,
-            type=resource.type,
-            identifier=resource.identifier,
-            locator="arn:aws:cloudformation:us-east-1:123456789012:stack/MyStack/previous",
-            name="MyBucket",
-        )
-    )
-    store(resource)
-
-    result = run_cli("show", "--unmanaged")
-
-    assert result.exit_code == 0
-    assert resource.identifier in result.stdout
-
-
 def test_show_include_system(run_cli: RunCli) -> None:
     system_resource = PhysicalResource(
         account="123456789012",
@@ -253,7 +220,7 @@ def test_show_conflicting_management_filters(run_cli: RunCli) -> None:
 
 def test_show_database_error(run_cli: RunCli) -> None:
     with patch(
-        "cloud_unmanaged.command.show.transaction",
+        "cloud_unmanaged.command.show.connect",
         side_effect=DatabaseError("Unable to access resource database"),
     ):
         result = run_cli("show")
