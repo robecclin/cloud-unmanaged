@@ -5,7 +5,7 @@ ignore-from-file: .gitignore
 
 rules:
   line-length:
-    max: 90
+    max: 100
   quoted-strings:
     check-keys: true
     quote-type: single

@@ -12,7 +12,7 @@ check:
 
 clean:
 	rm -rf .coverage .mypy_cache .pytest_cache .ruff_cache
-	find . -type d -name __pycache__ -exec rm -rf {} +
+	find src tests -type d -name __pycache__ -prune -exec rm -rf {} +
 
 format:
 	uv run ruff check --fix

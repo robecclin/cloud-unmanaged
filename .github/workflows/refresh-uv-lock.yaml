@@ -1,0 +1,65 @@
+---
+name: Refresh uv lockfile
+
+'on':
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: 0 12 * * *
+
+concurrency:
+  group: ${{ github.workflow_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      NO_COLOR: '1'
+      UV_NO_PROGRESS: 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: main
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d  # v10.0.1
+        with:
+          version-file: uv.lock
+      - name: Snapshot direct dependencies
+        run: uv tree --all-groups --depth 1 --frozen --universal > "$RUNNER_TEMP/direct-before.txt"
+      - name: Refresh lockfile
+        run: uv lock --upgrade 2>&1 | tee "$RUNNER_TEMP/uv-lock.log"
+      - name: Reject direct dependency updates
+        run: |
+          uv tree --all-groups --depth 1 --frozen --universal > "$RUNNER_TEMP/direct-after.txt"
+          if ! diff -u "$RUNNER_TEMP/direct-before.txt" "$RUNNER_TEMP/direct-after.txt"; then
+            echo '::error::The lock refresh updated direct dependencies.'
+            exit 1
+          fi
+      - name: Generate pull request body
+        run: |
+          awk '
+            BEGIN {
+              print "Refresh the uv lockfile to update these transitive dependencies:"
+              print ""
+              print "| Dependency | Previous | Updated |"
+              print "| --- | --- | --- |"
+            }
+            /^Updated / {
+              printf "| `%s` | `%s` | `%s` |\n", $2, substr($3, 2), substr($5, 2)
+            }
+          ' "$RUNNER_TEMP/uv-lock.log" > "$RUNNER_TEMP/uv-lock-pr-body.md"
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
+        with:
+          add-paths: uv.lock
+          body-path: ${{ runner.temp }}/uv-lock-pr-body.md
+          branch: automation/refresh-uv-lock
+          commit-message: refresh uv lockfile
+          delete-branch: true
+          sign-commits: true
+          title: refresh uv lockfile
+    timeout-minutes: 5
