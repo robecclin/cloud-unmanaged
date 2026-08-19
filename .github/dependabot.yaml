@@ -11,6 +11,8 @@ updates:
     schedule:
       interval: cron
       cronjob: 0 6 * * *
+    allow:
+      - dependency-type: all
     groups:
       boto3:
         patterns:
