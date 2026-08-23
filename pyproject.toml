@@ -1,7 +1,8 @@
 [project]
 name = "cloud-unmanaged"
 version = "0.1.0"
-description = "Tool to identify cloud resources not managed by IaC"
+# Commented out to force Dependabot to classify this project as an application
+# description = "Tool to identify cloud resources not managed by IaC"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
