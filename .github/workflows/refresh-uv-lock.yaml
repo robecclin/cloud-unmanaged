@@ -5,8 +5,6 @@ name: Refresh uv lockfile
   push:
     branches:
       - main
-  schedule:
-    - cron: 0 12 * * *
 
 concurrency:
   group: ${{ github.workflow_ref }}
