@@ -27,7 +27,7 @@ requires = ["uv_build>=0.12.7,<0.13"]
 
 [dependency-groups]
 dev = [
-    "coverage>=7.15.4",
+    "coverage>=7.16.0",
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "ruff>=0.16.5",
