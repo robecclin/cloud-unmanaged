@@ -14,7 +14,7 @@ dependencies = [
     "boto3>=1.43.83",
     "rich>=15.0.0",
     "sqlalchemy>=2.0.52",
-    "typer>=0.27.1",
+    "typer>=0.27.2",
     "types-boto3-lite[account,cloudformation,kms,resource-explorer-2]>=1.43.83",
 ]
 
