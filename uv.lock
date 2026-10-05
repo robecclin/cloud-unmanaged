@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -657,11 +657,11 @@ wheels = [
 
 [[package]]
 name = "types-boto3-account"
-version = "1.43.57"
+version = "1.43.106"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/02/a2/a82b193dc9135236f3bcfdd166fff70b189cd98260e6f64e2b8ee85e2796/types_boto3_account-1.43.57.tar.gz", hash = "sha256:58ee06e2057fc653aae572e54f0d69aebbc16ff52d52beceacf234177abf224b", size = 17755, upload-time = "2026-07-27T20:44:06.833Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/51/e9/b32812db7d09752ef23293eb2767fde8769f17520c6759e1aa3f5d675d30/types_boto3_account-1.43.106.tar.gz", hash = "sha256:237cf2e25099368d917bf8f18221d5c63493f7e65bad8ffad0134e33f35f828f", size = 18235, upload-time = "2026-09-30T22:44:10.685Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d0/e6/533f7de8066a3b7d937f53875efca56fc08a1db3bd79d95ab0cc84aeed04/types_boto3_account-1.43.57-py3-none-any.whl", hash = "sha256:511a34bdd779fa13ffd762ddbdecc8371e4553cd7d8e4ddd24e92634fe00278e", size = 23346, upload-time = "2026-07-27T20:44:05.554Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/fd/33d4e6a8650398d234b245df15e6b85e689121e1eec3bccda9fbad4163f3/types_boto3_account-1.43.106-py3-none-any.whl", hash = "sha256:dffbb3b3bee66c5f4a0f81b8a604741f5dcb55aa4d93aee8111066a774c3bbe7", size = 24060, upload-time = "2026-09-30T22:44:07.56Z" },
 ]
 
 [[package]]
